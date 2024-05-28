@@ -74,5 +74,17 @@ switch($_GET['endpoint']) {
     case 'delete': 
         $categoria->delete_category($_POST["categoria_id"]);     
     break;
+
+    
+    case 'get_category_jcombox':
+    $datos=$categoria->list_category();
+    if (is_array($datos) == true and count($datos) > 0) {
+        $html = "<option value=''>Seleccionar</option>";
+        foreach ($datos as $row) {
+          $html .= "<option value='" . $row['Id'] . "'>" . $row['NombresCategoria'] . "</option>";
+        }
+        echo $html;
+    }
+    break;
 }
 ?>

@@ -47,11 +47,114 @@ CREATE TABLE UnidadMedida (
     AbreviaturaUnd VARCHAR(10), 
     DescripcionUnd VARCHAR(50),
     Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',
-
     FechaRegistro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaActualizacion DATETIME 
 ); 
 
+ 
+
+CREATE TABLE Proveedores (
+    Id INT AUTO_INCREMENT PRIMARY KEY, 
+    Tipo_Documento ENUM('Dni', 'Ruc', 'Pasaporte'),
+    NumeroDocumento VARCHAR(20) NOT NULL,
+    P_Nombres VARCHAR(100),
+    P_Apellidos VARCHAR(100),  
+    Telefono VARCHAR(15),
+    Direccion VARCHAR(100), 
+    Id_Cate INT,
+    Notas VARCHAR(250),
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo', 
+    FechaRegistro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion DATETIME,
+    CONSTRAINT FK_Provider_Category FOREIGN KEY (Id_Cate) REFERENCES Categorias(Id) ON DELETE CASCADE   
+); 
+
+
+ CREATE TABLE Ubicaciones (
+    Id INT AUTO_INCREMENT PRIMARY KEY,  
+    U_Nombre VARCHAR(100) NOT NULL, 
+    U_Descripcion VARCHAR(255) DEFAULT NULL,
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo', 
+    FechaRegistro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion DATETIME
+ ); 
+
+
+CREATE TABLE Almacen (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Codigo VARCHAR(200) DEFAULT NULL,
+    Nombre VARCHAR(150),
+    Descripcion VARCHAR(250),
+    Tipo ENUM( 'Equipos', 'Herramientas','Articulos'),   
+    Ubicacion_id INT,
+    Categoria_id INT,
+    Proveedor_id INT, 
+    Marca VARCHAR(50),
+    Modelo VARCHAR(50),
+    Serie VARCHAR(100),
+    Color VARCHAR(30) DEFAULT NULL, 
+    UnidadMedida_id INT,
+    Medida VARCHAR(50) DEFAULT NULL,
+    Cantidad INT,
+    Precio_Unitario DECIMAL(10, 2),
+    Total DECIMAL(10, 2),
+    Fecha_Adquision DATE,
+    Adjunto VARCHAR(250),
+    Fase ENUM( 'Asignado', 'Faltante','Sobrante'),  
+    EstadoEquipo ENUM( 'Nuevo', 'Regular','Viejo'), 
+    Nota VARCHAR(250), 
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',   
+    FechaRegistro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion DATETIME,
+    CONSTRAINT FK_Almacen_Unidad FOREIGN KEY (UnidadMedida_id) REFERENCES UnidadMedida(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_Almacen_Category FOREIGN KEY (Categoria_id) REFERENCES Categorias(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_Almacen_Ubicacion FOREIGN KEY (Ubicacion_id) REFERENCES Ubicaciones(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_Almacen_Proveedor FOREIGN KEY (Proveedor_id) REFERENCES Proveedores(Id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Faltantes(
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Codigo VARCHAR(200) DEFAULT NULL, 
+    Nombre VARCHAR(150), 
+    Cantidad INT,
+    Precio_Unitario DECIMAL(10, 2),
+    Total DECIMAL(10, 2), 
+    Equipo_id INT,
+    EstadoEquipo ENUM( 'Faltante') NOT NULL DEFAULT 'Faltante',  
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',  
+    CONSTRAINT FK_Faltante_Equipo FOREIGN KEY (Equipo_id) REFERENCES Equipos(Id) ON DELETE CASCADE   
+
+);
+
+CREATE TABLE Sobrantes(
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Codigo VARCHAR(200) DEFAULT NULL, 
+    Nombre VARCHAR(150), 
+    Cantidad INT,
+    Precio_Unitario DECIMAL(10, 2),
+    Total DECIMAL(10, 2), 
+    Equipo_id INT,
+    EstadoEquipo ENUM( 'Sobrante') NOT NULL DEFAULT 'Sobrante',   
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',   
+    CONSTRAINT FK_sobrante_Equipo FOREIGN KEY (Equipo_id) REFERENCES Equipos(Id) ON DELETE CASCADE   
+);
+
+
+CREATE TABLE Asignados(
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Codigo VARCHAR(200) DEFAULT NULL, 
+    Nombre VARCHAR(150), 
+    Cantidad INT,
+    Precio_Unitario DECIMAL(10, 2),
+    Total DECIMAL(10, 2), 
+    Equipo_id INT,
+    EstadoEquipo ENUM( 'Sobrante') NOT NULL DEFAULT 'Sobrante',   
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',   
+    CONSTRAINT FK_sobrante_Equipo FOREIGN KEY (Equipo_id) REFERENCES Equipos(Id) ON DELETE CASCADE   
+);
+
+ 
 
 -- Insertar roles
 INSERT INTO Roles (NombreRol, Descripcion, Estado, FechaRegistro, FechaActualizacion) 
@@ -97,3 +200,112 @@ INSERT INTO UnidadMedida (NombresUnd, AbreviaturaUnd, DescripcionUnd, Estado) VA
 ('Metro', 'm', 'Unidad de medida de longitud', 'Activo'),
 ('Pieza', 'pz', 'Unidad de conteo', 'Activo'),
 ('Caja', 'cj', 'Unidad de empaquetado', 'Activo');
+
+
+INSERT INTO Proveedores (Tipo_Documento, NumeroDocumento, P_Nombres, P_Apellidos, Telefono, Direccion, Id_Cate, Notas, Estado)
+VALUES
+('Dni', '12345678', 'Juan', 'Perez', '123456789', 'Calle Falsa 123', 1, 'Proveedor confiable', 'Activo'),
+('Ruc', '87654321', 'Maria', 'Gonzalez', '987654321', 'Av. Siempre Viva 742', 2, 'Entrega rápida', 'Activo'),
+('Pasaporte', 'A1234567', 'Luis', 'Martinez', '456789123', 'Calle Luna 456', 3, 'Buena calidad', 'Activo'),
+('Dni', '23456789', 'Ana', 'Lopez', '234567890', 'Av. Sol 321', 4, 'Precios competitivos', 'Inactivo'),
+('Ruc', '76543210', 'Carlos', 'Garcia', '345678901', 'Calle Estrella 789', 5, 'Atención personalizada', 'Activo');
+
+
+
+--POR ELIMINAR
+INSERT INTO Almacen (
+    Codigo, 
+    Nombre, 
+    Descripcion, 
+    Tipo,
+    Ubicacion_id, 
+    Categoria_id, 
+    Proveedor_id, 
+    Marca, 
+    Modelo, 
+    Serie, 
+    Color, 
+    UnidadMedida_id, 
+    Medida, 
+    Cantidad, 
+    Precio_Unitario, 
+    Total, 
+    Fecha_Adquision, 
+    Adjunto, 
+    Nota, 
+    Fase,
+    EstadoEquipo,
+    Estado
+) VALUES 
+(
+    'COD001', 
+    'Equipo de Sonido', 
+    'Equipo de sonido para eventos', 
+    'Equipos',
+    1, 
+    1, 
+    1, 
+    'Sony', 
+    'Model-X', 
+    'SERIE123', 
+    'Negro', 
+    1, 
+    '1.5 metros', 
+    10, 
+    1500.00, 
+    15000.00, 
+    '2023-01-15', 
+    'adjunto1.pdf', 
+    'Equipo en buen estado', 
+    'Asignado',
+    'Nuevo',
+    'Activo'
+), 
+(
+    'COD002', 
+    'Taladro', 
+    'Taladro industrial', 
+    'Herramientas',
+    1, 
+    1, 
+    1, 
+    'Bosch', 
+    'Model-T', 
+    'SERIE456', 
+    'Azul', 
+    1, 
+    '30 cm', 
+    20, 
+    300.00, 
+    6000.00, 
+    '2023-03-22', 
+    'adjunto2.pdf', 
+    'Uso regular', 
+    'Asignado',
+    'Regular',
+    'Activo'
+), 
+(
+    'COD003', 
+    'Mesa de Trabajo', 
+    'Mesa de trabajo para taller', 
+    'Articulos',
+    1, 
+    1, 
+    1, 
+    'Workshop', 
+    'Model-W', 
+    'SERIE789', 
+    'Gris', 
+    1, 
+    '2 metros', 
+    5, 
+    200.00, 
+    1000.00, 
+    '2023-05-10', 
+    'adjunto3.pdf', 
+    'Mesa en buen estado', 
+    'Asignado',
+    'Nuevo',
+    'Activo'
+);

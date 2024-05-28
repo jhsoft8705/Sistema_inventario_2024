@@ -1,13 +1,13 @@
 <?php 
 require_once("../config/conexion.php");
-require_once("../models/Unidad.php");
+require_once("../models/Ubicacion.php");
 
-$unidad = new Unidad();
+$ubicacion = new Ubicacion();
 
 switch($_GET['endpoint']) {
-    // Listar unidades de medida
-    case 'list_unidades':
-        $datos = $unidad->list_unidad();
+    // Listar ubicaciones de medida
+    case 'list_ubicaciones':
+        $datos = $ubicacion->list_ubicacion();
         $data = array();
         foreach($datos as $filas) {
             $sub_array = array();
@@ -42,9 +42,9 @@ switch($_GET['endpoint']) {
         echo json_encode($results);
     break;
 
-    // Listar unidad de medida por ID
-    case 'list_unidad_id':
-        $datos = $unidad->list_unidad_id($_POST["unidad_id"]);
+    // Listar ubicacion de medida por ID
+    case 'list_ubicacion_id':
+        $datos = $ubicacion->list_ubicacion_id($_POST["ubicacion_id"]);
         if(is_array($datos) && count($datos) > 0) {  
             foreach($datos as $row) {
                 $output["id"] = $row["Id"];
@@ -56,17 +56,17 @@ switch($_GET['endpoint']) {
         }
     break;
 
-    // Guardar y actualizar unidades de medida
-    case 'save_and_update_unidades':
-        if(empty($_POST["unidad_id"])) { // Insertar
-            $unidad->insert_unidad(
+    // Guardar y actualizar ubicaciones de medida
+    case 'save_and_update_ubicaciones':
+        if(empty($_POST["ubicacion_id"])) { // Insertar
+            $ubicacion->insert_ubicacion(
                 $_POST["nombre"],
                 $_POST["abreviatura"],
                 $_POST["descripcion"]
             );  
         } else { // Actualizar
-            $unidad->update_unidad(
-                $_POST["unidad_id"],   
+            $ubicacion->update_ubicacion(
+                $_POST["ubicacion_id"],   
                 $_POST["nombre"],
                 $_POST["abreviatura"],
                 $_POST["descripcion"]
@@ -74,17 +74,17 @@ switch($_GET['endpoint']) {
         }       
     break;
     
-    // Eliminar unidad de medida
+    // Eliminar ubicacion de medida
     case 'delete': 
-        $unidad->delete_unidad($_POST["unidad_id"]);     
+        $ubicacion->delete_ubicacion($_POST["ubicacion_id"]);     
     break;
 
-    case 'get_unidad_jcombox':
-    $datos=$unidad->list_unidad();
+    case 'get_ubicacion_jcombox':
+    $datos=$ubicacion->list_ubicacion();
     if (is_array($datos) == true and count($datos) > 0) {
         $html = "<option value=''>Seleccionar</option>";
         foreach ($datos as $row) {
-          $html .= "<option value='" . $row['Id'] . "'>" . $row['NombresUnd'] .' '. $row['AbreviaturaUnd']."</option>";
+          $html .= "<option value='" . $row['Id'] . "'>" . $row['U_Nombre'] ."</option>";
         }
         echo $html;
     }

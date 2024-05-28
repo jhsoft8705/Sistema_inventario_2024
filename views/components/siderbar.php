@@ -52,25 +52,17 @@
                     <div class="collapse menu-dropdown" id="sidebar_suministros">
                         <ul class="nav nav-sm flex-column">
 
+                           
                             <li class="nav-item">
-                                <a href="../productos" class="nav-link" data-key="t-Productos">
-                                    Productos
+                                <a href="../almacen" class="nav-link" data-key="t-Almacen">
+                               Almacen
                                 </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="../equipos" class="nav-link" data-key="t-Equipos">
-                                    Equipos
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="../herramientas" class="nav-link" data-key="t-Herramientas">
-                                    Herramientas
-                                </a>
-                            </li> 
+                            </li>  
                         </ul>
                     </div>
                 </li>
 
+                <!---
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebar_inventario" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebar_inventario">
@@ -78,7 +70,7 @@
                     </a>
                     <div class="collapse menu-dropdown" id="sidebar_inventario">
                         <ul class="nav nav-sm flex-column">
-  
+
                             <li class="nav-item">
                                 <a href="../new-inventario" class="nav-link" data-key="t-Nuevo-inventario">
                                     Nuevo Inventario
@@ -100,7 +92,7 @@
                         </ul>
                     </div>
                 </li>
-
+                --->
 
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Mantenimiento</span></li>
          
@@ -112,6 +104,11 @@
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="../unidad-medida">
                         <i class=" ri-ruler-2-line"></i> <span data-key="t-unidad">Unidad de Medida</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="../ubicaciones">
+                        <i class=" bx bxs-edit-location"></i> <span data-key="t-ubicaciones">Ubicaciones</span>
                     </a>
                 </li>
                 <li class="nav-item">
