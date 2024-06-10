@@ -1,13 +1,22 @@
 var x = $("#usuario_id_session").val();
  
+// In your Javascript (external .js resource or <script> tag)
+$(document).ready(function() {
+  $("#categoria_id").select2({
+    dropdownParent: $('#modal_mantenimiento')
+  });
+  $("#proveedor_id").select2({
+    dropdownParent: $('#modal_mantenimiento')
+  });
+});
+
 function init() {
   $("#form_mantenimiento").on("submit", function (e) {
     //hacemos referencia al formulario por ID
     save_user_and_update(e);
   });
-}
-
-/*TODO:Guardar y editar User*/
+} 
+/*TODO:Guardar y editar*/
 function save_user_and_update(e) {
   e.preventDefault();
 
@@ -20,7 +29,7 @@ function save_user_and_update(e) {
   //formData.append("notificacion", notificacion);
 
   $.ajax({
-    url: "../../controllers/ProveedorController.php?endpoint=save_and_update_proveedores",
+    url: "../../controllers/AlmacenController.php?endpoint=save_and_update_almacen",
     type: "POST",
     data: formData,
     contentType: false,
@@ -28,7 +37,7 @@ function save_user_and_update(e) {
     success: function (data) {
       $("#modal_mantenimiento").modal("hide");
 
-      $("#table_proveedores").DataTable().ajax.reload();
+      $("#table_almacen").DataTable().ajax.reload();
       swal.fire({
         title: "Registro Exitoso",
         text: "La operación se realizó correctamente",
@@ -40,16 +49,8 @@ function save_user_and_update(e) {
 
 $(document).ready(function () {
 
-  /*TODO:listar categoria*/
-  $.post( "../../controllers/CategoryController.php?endpoint=get_category_jcombox",
-    { true: true },
-    function (data) {
-      //console.log("Datos recibidos para cate:", data);
-      $("#categoria_id").html(data);
-    }
-  );
-  /*TODO:listar Unidad de medidas */
-  $("#table_proveedores").DataTable({
+  /*TODO:listar almacen */
+  $("#table_almacen").DataTable({
     aProcessing: true,
     aServerSide: true,
     dom: "Bfrtip",
@@ -60,26 +61,19 @@ $(document).ready(function () {
         extend: "copyHtml5",
         messageTop: "Tabla copiada al portapapeles",
         exportOptions: {
-          columns: [0, 1, 2], // Exclude the actions column
+          columns: [0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], // Exclude the actions column
         },
       },
       {
         text: "Exportar Excel",
         extend: "excelHtml5",
         exportOptions: {
-          columns: [0, 1, 2], // Exclude the actions column
+          columns: [0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], // Exclude the actions column
         },
-      },
-      {
-        text: "Imprimir",
-        extend: "print",
-        exportOptions: {
-          columns: [0, 1, 2], // Exclude the actions column
-        },
-      },
+      }, 
     ],
     ajax: {
-      url: "../../controllers/ProveedorController.php?endpoint=list_proveedores",
+      url: "../../controllers/AlmacenController.php?endpoint=list_almacen",
       type: "post",
       data: { true: true },
     },
@@ -123,12 +117,45 @@ $(document).ready(function () {
       },
     },
   });
-  
+ 
+  /*TODO:listar ubicación*/
+  $.post(  "../../controllers/LocationController.php?endpoint=get_ubicacion_jcombox",
+    { true: true },
+    function (data) {
+      //console.log("Datos recibidos para cate:", data);
+      $("#ubicacion_id").html(data);
+    }
+  );
+  /*TODO:listar categoria*/
+  $.post( "../../controllers/CategoryController.php?endpoint=get_category_jcombox",
+    { true: true },
+    function (data) {
+      //console.log("Datos recibidos para cate:", data);
+      $("#categoria_id").html(data);
+    }
+  );
+  /*TODO:listar proveedores*/
+  $.post(  "../../controllers/ProveedorController.php?endpoint=get_provider_jcombox",
+    { true: true },
+    function (data) {
+      //console.log("Datos recibidos para pro:", data);
+      $("#proveedor_id").html(data);
+    }
+  );
+  /*TODO:listar und*/
+  $.post(
+    "../../controllers/UnidadController.php?endpoint=get_unidad_jcombox",
+    { true: true },
+    function (data) {
+      //console.log("Datos recibidos para pro:", data);
+      $("#unidad_medida_id").html(data);
+    }
+  );
 });
 
 function editar(Id) {
   $.post(
-    "../../controllers/ProveedorController.php?endpoint=list_proveedor_id",
+    "../../controllers/AlmacenController.php?endpoint=list_proveedor_id",
     { proveedor_id: Id },
     function (data) {
       //console.log(data);
@@ -141,7 +168,7 @@ function editar(Id) {
       $("#telefono").val(data.telefono);
       $("#direccion").val(data.direccion);
       $("#categoria_id").val(data.id_cate);
-      $("#nota").val(data.notas); 
+      $("#nota").val(data.notas);
     }
   );
   $("#label_title").html("Actualizar proveedor");
@@ -167,14 +194,14 @@ function eliminar(Id) {
       if (result.value) {
         //Eliminar el registro utilizando una solicitud POST al controlador correspondiente
         $.post(
-          "../../controllers/ProveedorController.php?endpoint=delete",
+          "../../controllers/AlmacenController.php?endpoint=delete",
           { proveedor_id: Id },
           function (data) {
             console.log(data); //Mostrar posibles errores en la consola
           }
         );
         //Recargar la tabla después de eliminar el registro
-        $("#table_proveedores").DataTable().ajax.reload();
+        $("#table_almacen").DataTable().ajax.reload();
         //Mostrar un mensaje de éxito al Unidad de medida utilizando SweetAlert
         swal.fire({
           title: "Registro eliminado",
@@ -194,7 +221,7 @@ $(document).on("click", "#btn_nuevo_registro", function () {
   $("#form_mantenimiento")[0].reset();
   //$("#Unidad de medida_id").val("");
 
-  $("#label_title").html("Registrar proveedor");
+  $("#label_title").html("Registrar Equipos o Herramientas");
   $("#labelbtn").html("Registrar");
   $("#modal_mantenimiento").modal("show");
 

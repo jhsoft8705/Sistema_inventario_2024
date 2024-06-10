@@ -34,7 +34,7 @@ class Rol extends Conectar
     public function list_rol_id($rol_id){
         try {
             $conectar = parent::Conexion();
-            $sql="SP_LISTAR_ROL_ID ?";  
+            $sql="CALL listar_rol_id (?)";  
             $query = $conectar->prepare($sql);
             $query->bindValue(1, $rol_id); 
             $query->execute();
@@ -48,7 +48,7 @@ class Rol extends Conectar
     public function update_rol($id,$nombre,$descrip){
         try {
             $conectar = parent::Conexion();
-            $sql="SP_ACTUALIZAR_ROL ?,?,?";  
+            $sql="CALL actualizar_rol (?,?,?)";  
             $query = $conectar->prepare($sql);
             $query->bindValue(1, $id);
             $query->bindValue(2, $nombre); 
@@ -64,7 +64,7 @@ class Rol extends Conectar
     public function delete_rol($rol_id){
         try {
             $conectar = parent::Conexion();
-            $sql="SP_ELIMINAR_ROL ?";  
+            $sql="CALL eliminar_rol (?)";  
             $query = $conectar->prepare($sql);
             $query->bindValue(1, $rol_id); 
             $query->execute();

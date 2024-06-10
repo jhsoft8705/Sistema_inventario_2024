@@ -1,21 +1,23 @@
 <?php 
 require_once("../config/conexion.php");
-require_once("../models/Ubicacion.php");
+require_once("../models/Periodo.php");
 
-$ubicacion = new Ubicacion();
+$periodo = new Periodo();
 
 switch($_GET['endpoint']) {
-    // Listar ubicaciones
-    case 'list_ubicaciones':
-        $datos = $ubicacion->list_ubicaciones();
+    // Listar periodos
+    case 'list_periodos':
+        $datos = $periodo->list_periodos();
         $data = array();
         foreach($datos as $filas) {
             $sub_array = array();
-            $sub_array[] = $filas["U_Nombre"];
-            $sub_array[] = $filas["U_Descripcion"];
+            $sub_array[] = $filas["Nombre"];
+            $sub_array[] = $filas["Fecha_Inicio"];
+            $sub_array[] = $filas["Fecha_Fin"];
+            $sub_array[] = $filas["Descripcion"];
             if($filas["Estado"] == 'Activo') {
                 $sub_array[] = '<span class="badge bg-success">' . $filas["Estado"] . '</span>';
-            } else {
+            }else {
                 $sub_array[] = '<span class="badge bg-danger">' . $filas["Estado"] . '</span>';
             }
             $sub_array[] = '
@@ -45,50 +47,58 @@ switch($_GET['endpoint']) {
         echo json_encode($results);
     break;
 
-    // Listar ubicación por ID
-    case 'list_ubicacion_id':
-        $datos = $ubicacion->list_ubicacion_id($_POST["ubicacion_id"]);
+    // Listar periodo por ID
+    case 'list_periodo_id':
+        $datos = $periodo->list_periodo_id($_POST["periodo_id"]);
         if(is_array($datos) && count($datos) > 0) {  
             foreach($datos as $row) {
                 $output["id"] = $row["Id"];
-                $output["nombre"] = $row["U_Nombre"]; 
-                $output["descripcion"] = $row["U_Descripcion"];
+                $output["nombre"] = $row["Nombre"];
+                $output["fecha_inicio"] = $row["Fecha_Inicio"];
+                $output["fecha_fin"] = $row["Fecha_Fin"];
+                $output["descripcion"] = $row["Descripcion"];
             }
             echo json_encode($output); 
         }
     break;
 
-    // Guardar y actualizar ubicaciones
-    case 'save_and_update_ubicaciones':
-        if(empty($_POST["ubicacion_id"])) { // Insertar
-            $ubicacion->insert_ubicacion(
+    // Guardar y actualizar periodos
+    case 'save_and_update_periodos':
+        if(empty($_POST["periodo_id"])) { // Insertar
+            $periodo->insert_periodo(
                 $_POST["nombre"],
+                $_POST["fecha_inicio"],
+                $_POST["fecha_fin"],
                 $_POST["descripcion"]
             );  
         } else { // Actualizar
-            $ubicacion->update_ubicacion(
-                $_POST["ubicacion_id"],   
+            $periodo->update_periodo(
+                $_POST["periodo_id"],   
                 $_POST["nombre"],
+                $_POST["fecha_inicio"],
+                $_POST["fecha_fin"],
                 $_POST["descripcion"]
             );  
         }       
     break;
     
-    // Eliminar ubicación
+    // Eliminar periodo
     case 'delete': 
-        $ubicacion->delete_ubicacion($_POST["ubicacion_id"]);     
+        $periodo->delete_periodo($_POST["periodo_id"]);     
     break;
 
-    // Obtener ubicaciones para combobox
-    case 'get_ubicacion_jcombox':
-    $datos=$ubicacion->list_ubicaciones();
-    if (is_array($datos) == true and count($datos) > 0) {
-        $html = "<option value=''>Seleccionar</option>";
-        foreach ($datos as $row) {
-          $html .= "<option value='" . $row['Id'] . "'>" . $row['U_Nombre'] ."</option>";
+    // Obtener periodos para combobox
+    case 'get_periodo_combobox':
+        $datos = $periodo->list_periodos();
+        if (is_array($datos) && count($datos) > 0) {
+            $html = "<option value=''>Seleccionar</option>";
+            foreach ($datos as $row) {
+                if($row["Estado"] == 'Activo') {
+                    $html .= "<option value='" . $row['Id'] . "'>" . $row['Nombre'] . "</option>";
+                }
+            }
+            echo $html;
         }
-        echo $html;
-    }
     break;
 }
 ?>

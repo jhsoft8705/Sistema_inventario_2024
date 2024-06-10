@@ -20,7 +20,7 @@ function save_user_and_update(e) {
   //formData.append("notificacion", notificacion);
 
   $.ajax({
-    url: "../../controllers/LocationController.php?endpoint=save_and_update_categorias",
+    url: "../../controllers/LocationController.php?endpoint=save_and_update_ubicaciones",
     type: "POST",
     data: formData,
     contentType: false,
@@ -28,7 +28,7 @@ function save_user_and_update(e) {
     success: function (data) {
       $("#modal_mantenimiento").modal("hide");
 
-      $("#table_category").DataTable().ajax.reload(); 
+      $("#table_ubicacion").DataTable().ajax.reload(); 
       swal.fire({
         title: "Registro Exitoso",
         text: "La operación se realizó correctamente",
@@ -40,7 +40,7 @@ function save_user_and_update(e) {
  
 $(document).ready(function () {  
   /*TODO:listar Ubicacións */
-  $("#table_category").DataTable({
+  $("#table_ubicacion").DataTable({
     aProcessing: true,
     aServerSide: true,
     dom: "Bfrtip",
@@ -72,7 +72,7 @@ $(document).ready(function () {
       
     ],
     ajax: {
-      url: "../../controllers/LocationController.php?endpoint=list_categorias",
+      url: "../../controllers/LocationController.php?endpoint=list_ubicaciones",
       type: "post",
       data: { true: true },
     },
@@ -121,12 +121,12 @@ $(document).ready(function () {
 
 function editar(Id) {
   $.post(
-    "../../controllers/LocationController.php?endpoint=list_categoria_id",
-    { categoria_id: Id },
+    "../../controllers/LocationController.php?endpoint=list_ubicacion_id",
+    { ubicacion_id: Id },
     function (data) {
       //console.log(data);
       data = JSON.parse(data); //Convertir a data a formato JSON
-      $("#categoria_id").val(data.id);
+      $("#ubicacion_id").val(data.id);
       $("#nombre").val(data.nombre);
       $("#descripcion").val(data.descripcion);  
     }
@@ -154,13 +154,13 @@ function eliminar(Id) {
         //Eliminar el registro utilizando una solicitud POST al controlador correspondiente
         $.post(
           "../../controllers/LocationController.php?endpoint=delete",
-          { categoria_id: Id },
+          { ubicacion_id: Id },
           function (data) {
             console.log(data); //Mostrar posibles errores en la consola
           }
         );
         //Recargar la tabla después de eliminar el registro
-        $("#table_category").DataTable().ajax.reload();
+        $("#table_ubicacion").DataTable().ajax.reload();
         //Mostrar un mensaje de éxito al Ubicación utilizando SweetAlert
         swal.fire({
           title: "Registro eliminado",

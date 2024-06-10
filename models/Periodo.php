@@ -1,11 +1,10 @@
 <?php
-class Ubicacion extends Conectar
+class Periodo extends Conectar
 {
-    // Listar ubicaciones
-    public function list_ubicaciones() {
+    public function list_periodos() {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL listar_ubicaciones()";
+            $sql = "CALL listar_periodos()";
             $query = $conectar->prepare($sql);
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
@@ -15,29 +14,29 @@ class Ubicacion extends Conectar
         }
     }
 
-    // Insertar nueva ubicación
-    public function insert_ubicacion($nombre, $descripcion) {
+    public function insert_periodo($nombre, $fecha_inicio, $fecha_fin, $descripcion) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL registrar_ubicacion(?, ?)";
+            $sql = "CALL registrar_periodo(?, ?, ?, ?)";
             $query = $conectar->prepare($sql);
             $query->bindValue(1, $nombre);
-            $query->bindValue(2, $descripcion);
+            $query->bindValue(2, $fecha_inicio);
+            $query->bindValue(3, $fecha_fin);
+            $query->bindValue(4, $descripcion);
             $query->execute();
-            return "La ubicación se ha registrado con éxito.";
+            return "El periodo se ha registrado con éxito.";
         } catch (PDOException $e) {
             echo "Error en la consulta: " . $e->getMessage();
             return ["error" => "Ocurrió un error al ejecutar consulta"];
         }
     }
 
-    // Listar ubicación por ID
-    public function list_ubicacion_id($ubicacion_id) {
+    public function list_periodo_id($periodo_id) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL listar_ubicacion_id(?)";
+            $sql = "CALL listar_periodo_id(?)";
             $query = $conectar->prepare($sql);
-            $query->bindValue(1, $ubicacion_id);
+            $query->bindValue(1, $periodo_id);
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -46,32 +45,32 @@ class Ubicacion extends Conectar
         }
     }
 
-    // Actualizar ubicación existente
-    public function update_ubicacion($id, $nombre, $descripcion) {
+    public function update_periodo($id, $nombre, $fecha_inicio, $fecha_fin, $descripcion) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL actualizar_ubicacion(?, ?, ?)";
+            $sql = "CALL actualizar_periodo(?, ?, ?, ?, ?)";
             $query = $conectar->prepare($sql);
             $query->bindValue(1, $id);
             $query->bindValue(2, $nombre);
-            $query->bindValue(3, $descripcion);
+            $query->bindValue(3, $fecha_inicio);
+            $query->bindValue(4, $fecha_fin);
+            $query->bindValue(5, $descripcion);
             $query->execute();
-            return "La ubicación se ha actualizado con éxito.";
+            return "El periodo se ha actualizado con éxito.";
         } catch (PDOException $e) {
             echo "Error en la consulta: " . $e->getMessage();
             return ["error" => "Ocurrió un error al ejecutar consulta"];
         }
     }
 
-    // Eliminar ubicación (cambiar estado a 'Eliminado')
-    public function delete_ubicacion($ubicacion_id) {
+    public function delete_periodo($periodo_id) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL eliminar_ubicacion(?)";
+            $sql = "CALL eliminar_periodo(?)";
             $query = $conectar->prepare($sql);
-            $query->bindValue(1, $ubicacion_id);
+            $query->bindValue(1, $periodo_id);
             $query->execute();
-            return "La ubicación se ha eliminado con éxito.";
+            return "El periodo se ha eliminado con éxito.";
         } catch (PDOException $e) {
             echo "Error en la consulta: " . $e->getMessage();
             return ["error" => "Ocurrió un error al ejecutar consulta"];

@@ -1,4 +1,4 @@
-var x = $("#usuario_id_session").val();
+ var x = $("#usuario_id_session").val();
 console.log(x);
 function init() {
   $("#form_mantenimiento").on("submit", function (e) {
@@ -11,16 +11,16 @@ function init() {
 function save_user_and_update(e) {
   e.preventDefault();
 
-  // var id = $("#Unidad de medida_id").val();
+  // var id = $("#periodo_id").val();
 
-  /* if (!form_validations()) {
+ /* if (!form_validations()) {
     return;
   }*/
   var formData = new FormData($("#form_mantenimiento")[0]);
   //formData.append("notificacion", notificacion);
 
   $.ajax({
-    url: "../../controllers/AlmacenController.php?endpoint=save_and_update_almacen",
+    url: "../../controllers/PeriodoController.php?endpoint=save_and_update_periodos",
     type: "POST",
     data: formData,
     contentType: false,
@@ -28,7 +28,7 @@ function save_user_and_update(e) {
     success: function (data) {
       $("#modal_mantenimiento").modal("hide");
 
-      $("#table_almacen").DataTable().ajax.reload();
+      $("#table_periodos").DataTable().ajax.reload(); 
       swal.fire({
         title: "Registro Exitoso",
         text: "La operación se realizó correctamente",
@@ -37,11 +37,10 @@ function save_user_and_update(e) {
     },
   });
 }
-
-$(document).ready(function () {
-
-  /*TODO:listar almacen */
-  $("#table_almacen").DataTable({
+ 
+$(document).ready(function () {  
+  /*TODO:listar Periodos */
+  $("#table_periodos").DataTable({
     aProcessing: true,
     aServerSide: true,
     dom: "Bfrtip",
@@ -50,21 +49,30 @@ $(document).ready(function () {
       {
         text: "Copiar",
         extend: "copyHtml5",
-        messageTop: "Tabla copiada al portapapeles",
+        messageTop: "Tabla copiada al portapapeles", 
         exportOptions: {
-          columns: [0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], // Exclude the actions column
-        },
+          columns: [0, 1, 2] // Exclude the actions column
+        }
       },
       {
         text: "Exportar Excel",
         extend: "excelHtml5",
         exportOptions: {
-          columns: [0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], // Exclude the actions column
-        },
-      }, 
+          columns: [0, 1, 2] // Exclude the actions column
+        }
+        
+      },
+      {
+        text: "Imprimir",
+        extend: "print",
+        exportOptions: {
+          columns: [0, 1, 2] // Exclude the actions column
+        }
+      },
+      
     ],
     ajax: {
-      url: "../../controllers/AlmacenController.php?endpoint=list_almacen",
+      url: "../../controllers/PeriodoController.php?endpoint=list_periodos",
       type: "post",
       data: { true: true },
     },
@@ -105,82 +113,33 @@ $(document).ready(function () {
           _: "%d líneas copiadas",
           1: "1 línea copiada",
         },
+
       },
     },
   });
-
-  $("#categoria_id,#proveedor_id").select2({
-    dropdownParent: $("#modal_mantenimiento"),
-  });
-
-
-  
-
-
-  /*TODO:listar categoria*/
-  $.post(
-    "../../controllers/LocationController.php?endpoint=get_ubicacion_jcombox",
-    { true: true },
-    function (data) {
-      //console.log("Datos recibidos para cate:", data);
-      $("#ubicacion_id").html(data);
-    }
-  );
-  /*TODO:listar categoria*/
-  $.post(
-    "../../controllers/CategoryController.php?endpoint=get_category_jcombox",
-    { true: true },
-    function (data) {
-      //console.log("Datos recibidos para cate:", data);
-      $("#categoria_id").html(data);
-    }
-  );
-  /*TODO:listar prov*/
-  $.post(
-    "../../controllers/ProveedorController.php?endpoint=get_provider_jcombox",
-    { true: true },
-    function (data) {
-      //console.log("Datos recibidos para pro:", data);
-      $("#proveedor_id").html(data);
-    }
-  );
-  /*TODO:listar prov*/
-  $.post(
-    "../../controllers/UnidadController.php?endpoint=get_unidad_jcombox",
-    { true: true },
-    function (data) {
-      //console.log("Datos recibidos para pro:", data);
-      $("#unidad_medida_id").html(data);
-    }
-  );
 });
 
 function editar(Id) {
   $.post(
-    "../../controllers/AlmacenController.php?endpoint=list_proveedor_id",
-    { proveedor_id: Id },
+    "../../controllers/PeriodoController.php?endpoint=list_periodo_id",
+    { periodo_id: Id },
     function (data) {
       //console.log(data);
       data = JSON.parse(data); //Convertir a data a formato JSON
-      $("#proveedor_id").val(data.id);
-      $("#tipo").val(data.tipo_documento);
-      $("#documento").val(data.numero_documento);
-      $("#nombre").val(data.nombres);
-      $("#apellido").val(data.apellidos);
-      $("#telefono").val(data.telefono);
-      $("#direccion").val(data.direccion);
-      $("#categoria_id").val(data.id_cate);
-      $("#nota").val(data.notas);
+      $("#periodo_id").val(data.id);
+      $("#fecha_inicio").val(data.fecha_inicio);
+      $("#fecha_fin").val(data.fecha_fin); 
+      $("#nombre").val(data.nombre);
+      $("#descripcion").val(data.descripcion);  
     }
   );
-  $("#label_title").html("Actualizar proveedor");
+  $("#label_title").html("Actualizar Periodo");
   $("#labelbtn").html("Actualizar");
   $("#modal_mantenimiento").modal("show");
 }
 
 function eliminar(Id) {
-  console.log(Id);
-  //Mostrar un mensaje de confirmación al Unidad de medida utilizando SweetAlert
+  //Mostrar un mensaje de confirmación al Periodo utilizando SweetAlert
   swal
     .fire({
       title: "Eliminar registro",
@@ -196,15 +155,15 @@ function eliminar(Id) {
       if (result.value) {
         //Eliminar el registro utilizando una solicitud POST al controlador correspondiente
         $.post(
-          "../../controllers/AlmacenController.php?endpoint=delete",
-          { proveedor_id: Id },
+          "../../controllers/PeriodoController.php?endpoint=delete",
+          { periodo_id: Id },
           function (data) {
             console.log(data); //Mostrar posibles errores en la consola
           }
         );
         //Recargar la tabla después de eliminar el registro
-        $("#table_almacen").DataTable().ajax.reload();
-        //Mostrar un mensaje de éxito al Unidad de medida utilizando SweetAlert
+        $("#table_periodos").DataTable().ajax.reload();
+        //Mostrar un mensaje de éxito al Periodo utilizando SweetAlert
         swal.fire({
           title: "Registro eliminado",
           text: "El registro ha sido eliminado satisfactoriamente.",
@@ -221,15 +180,17 @@ $(document).on("click", "#btn_nuevo_registro", function () {
   // Limpiar div errors y quitar clases is-invalid
   $("#form_mantenimiento :input").val("");
   $("#form_mantenimiento")[0].reset();
-  //$("#Unidad de medida_id").val("");
+  //$("#periodo_id").val("");
 
-  $("#label_title").html("Registrar Equipos o Herramientas");
+  $("#label_title").html("Registrar Nuevo Periodo");
   $("#labelbtn").html("Registrar");
   $("#modal_mantenimiento").modal("show");
 
   //var notifiaciones = $("#notificacion").prop("checked");
   //console.log("NOTIFI SWCCI:" + notifiaciones);
 });
+
+ 
 
 function form_validations() {
   // Limpiar div errors y quitar clases is-invalid

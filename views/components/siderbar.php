@@ -44,25 +44,37 @@
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-components">Almacen</span></li>
 
 
+
+                <!--Inventario--->
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebar_suministros" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebar_suministros">
-                        <i class=" ri-tools-line"></i> <span data-key="t-sidebar_suministros">Suministros</span>
+                        <i class=" ri-tools-line"></i> <span data-key="t-sidebar_suministros">Almacen</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebar_suministros">
                         <ul class="nav nav-sm flex-column">
 
-                           
+                        
                             <li class="nav-item">
-                                <a href="../almacen" class="nav-link" data-key="t-Almacen">
-                               Almacen
+                                <a href="../equipos" class="nav-link" data-key="t-Equipos">
+                                    Equipos
                                 </a>
-                            </li>  
+                            </li>
+                            <li class="nav-item">
+                                <a href="../herramientas" class="nav-link" data-key="t-Herramientas">
+                                    Herramientas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../insumos" class="nav-link" data-key="t-Insumos">
+                                    Insumos
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>
 
-                <!---
+                <!--Asiganciones-->
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebar_inventario" data-bs-toggle="collapse" role="button"
                         aria-expanded="false" aria-controls="sidebar_inventario">
@@ -72,17 +84,22 @@
                         <ul class="nav nav-sm flex-column">
 
                             <li class="nav-item">
-                                <a href="../new-inventario" class="nav-link" data-key="t-Nuevo-inventario">
-                                    Nuevo Inventario
+                                <a href="../new-asignacion" class="nav-link" data-key="t-Nuevo-asignacion">
+                                    Asignar Taller
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a href="../inventarios" class="nav-link" data-key="t-Inventarios">
-                                    Lista de Inventarios
+                                <a href="../asignaciones" class="nav-link" data-key="t-Lista de Asignaciones">
+                                Lista de Asignaciones
                                 </a>
                             </li>
 
+                            <li class="nav-item">
+                                <a href="../talleres" class="nav-link" data-key="t-Talleres">
+                                Talleres
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a href="../periodos" class="nav-link" data-key="t-Periodos">
                                     Periodos
@@ -92,10 +109,10 @@
                         </ul>
                     </div>
                 </li>
-                --->
+
 
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Mantenimiento</span></li>
-         
+
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="../categorias">
                         <i class=" ri-shopping-bag-2-fill"></i> <span data-key="t-unidad">Categorias</span>
@@ -116,7 +133,7 @@
                         <i class=" ri-account-box-fill"></i> <span data-key="t-proveedores">Proveedores</span>
                     </a>
                 </li>
-              
+
                 <!---
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarPages" data-bs-toggle="collapse" role="button"

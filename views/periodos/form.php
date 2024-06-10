@@ -11,24 +11,43 @@
 
                      <div class="mb-3">
                          <div class="input-group has-validation">
-                             <!--<span class="input-group-d" id="nombre">@</span>--->
-                             <input hidden type="text" id="ubicacion_id" name="ubicacion_id" class="form-control"
-                                 placeholder="ubicacion_id" aria-describedby="ubicacion_id" />
+                             <input hidden type="text" id="periodo_id" name="periodo_id" class="form-control"
+                                 placeholder="periodo_id" aria-describedby="periodo_id" />
                              <div class="invalid-feedback">
-                                 Por favor ingresar nombre
+                                 Por favor ingresar
                              </div>
                          </div>
                      </div>
 
+                     <div class="mb-3">
+                         <label for="nombre" class="form-label">Nombre del Periodo</label>
+                         <div class="input-group has-validation">
+                             <input type="text" id="nombre" name="nombre" class="form-control"
+                                 placeholder="Ingresar nombre del periodo" aria-describedby="nombre" />
+                             <div id="nombre_error" class="invalid-feedback">
+                                 Por favor ingresar nombre del periodo
+                             </div>
+                         </div>
+                     </div>
 
                      <div class="mb-3">
-                         <label for="nombre" class="form-label">Ubicación</label>
+                         <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
                          <div class="input-group has-validation">
-                             <!--<span class="input-group-d" id="nombre">@</span>--->
-                             <input type="text" id="nombre" name="nombre" class="form-control"
-                                 placeholder="Ingresar Categoría" aria-describedby="nombre" />
-                             <div id="nombre_error" class="invalid-feedback">
-                                 Por favor ingresar nombre
+                             <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control"
+                                 placeholder="Ingresar fecha de inicio" aria-describedby="fecha_inicio" />
+                             <div id="fecha_inicio_error" class="invalid-feedback">
+                                 Por favor ingresar fecha de inicio
+                             </div>
+                         </div>
+                     </div>
+
+                     <div class="mb-3">
+                         <label for="fecha_fin" class="form-label">Fecha de Fin</label>
+                         <div class="input-group has-validation">
+                             <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
+                                 placeholder="Ingresar fecha de fin" aria-describedby="fecha_fin" />
+                             <div id="fecha_fin_error" class="invalid-feedback">
+                                 Por favor ingresar fecha de fin
                              </div>
                          </div>
                      </div>
@@ -38,17 +57,19 @@
                          <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
                              placeholder="Ingresar descripción"></textarea>
                          <div id="descripcion_error" class="invalid-feedback">
-                             Message
+                             Por favor ingresar descripción
                          </div>
-                     </div> 
+                     </div>
+
                  </div>
                  <div class="modal-footer">
                      <div class="hstack gap-2 justify-content-end">
                          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                         <button type="submit" class="btn btn-success" id="labelbtn">Add Customer</button>
+                         <button type="submit" class="btn btn-success" id="labelbtn">Guardar Periodo</button>
                      </div>
                  </div>
              </form>
+
          </div>
      </div>
  </div>

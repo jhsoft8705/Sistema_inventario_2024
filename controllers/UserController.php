@@ -79,8 +79,7 @@ switch($_GET['enpoint']){
         $_POST["nombres"],
         $_POST["documento"],
         $_POST["telefono"],
-        $_POST["direccion"] ); 
- 
+        $_POST["direccion"] );  
         $_SESSION["nombre_user"] = $_POST["nombres"];  
         $_SESSION["telefono"] = $_POST["documento"];
         $_SESSION["documento"] = $_POST["telefono"];   
@@ -132,8 +131,20 @@ switch($_GET['enpoint']){
     case 'delete': 
     $usuario->delete_user($_POST["usuario_id"]);     
     break;
-    
 
+    // Obtener usuario para combobox
+    case 'get_usuario_jcombox':
+    $datos = $usuario->List_User();
+    if (is_array($datos) && count($datos) > 0) {
+        $html = "<option value=''>Seleccionar</option>";
+        foreach ($datos as $row) {
+            if($row["Estado"]=='Activo'){
+                $html .= "<option value='" . $row['Id'] . "'>" . $row['NombresUsuario'] .' '. $row['ApellidosUsuario'] .' - '. $row["NombreRol"]. "</option>";
+            }
+        }
+        echo $html;
+    }
+   break; 
 }
 
 ?>

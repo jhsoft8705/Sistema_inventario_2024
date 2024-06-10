@@ -4,16 +4,13 @@ require_once("../../config/conexion.php");
 if(isset($_SESSION['usuario_id'])){ 
         
 ?>
-
-
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
     data-sidebar-image="none">
 
 <head>
     <title>Almacen | InvenTechPE</title>
-    <?php require_once("../components/head.php") ?>
-
+    <?php require_once("../components/head.php") ?> 
 </head>
 
 <body>
@@ -222,17 +219,11 @@ if(isset($_SESSION['usuario_id'])){
     <?php require_once("../components/config_theme.php") ?>
     <!-- ==========config theme========== -->
 
-
-
     <!-- JAVASCRIPT -->
     <?php require_once ("../components/js.php") ?>
 
-    <!-- App js
-    <script src="../../assets/js/app.js"></script> -->
-    <script src="almacen.js"></script>
-
-
-
+    <script src="../../assets/js/app.js"></script>
+    <script src="almacen.js"></script> 
 </body>
 
 </html>

@@ -24,7 +24,7 @@ function save_rol_and_update(e) {
     contentType: false,
     processData: false,
     success: function (data) {
-      $("#tabla_roles").DataTable().ajax.reload();
+      $("#table_roles").DataTable().ajax.reload();
       $("#modal_mantenimiento").modal("hide");
       console.log(data);
       swal.fire({
@@ -38,7 +38,7 @@ function save_rol_and_update(e) {
 
 $(document).ready(function () {
   /* TODO: Listar informacion en el datatable js */
-  $("#tabla_roles").DataTable({
+  $("#table_roles").DataTable({
     aProcessing: true,
     aServerSide: true,
     dom: "Bfrtip",
@@ -83,77 +83,21 @@ $(document).ready(function () {
   });
 });
 
-function show_roles(x) {
-  console.log("ROL_ID"+x)
-  $.post(
-    "../../controllers/RolController.php?enpoint=create_automatico_list_permiso_x_rol",
-    { rol_id: x },
-    function (data) {
-      console.log(data);
-     // $("#tabla_permisos").DataTable().ajax.reload();
-    }
-  );
-  $("#tabla_permisos").DataTable({
-    aProcessing: true,
-    aServerSide: true,
-    paging: false, // Desactivar paginación
-
-    dom: "Bfrtip",
-    buttons: ["copyHtml5"],
-    ajax: {
-      url: "../../controllers/RolController.php?enpoint=listar_permisos_x_rol_id",
-      type: "post",
-      data: { id_role: x },
-    },
-    bDestroy: true,
-    responsive: true,
-    bInfo: false,
-    iDisplayLength: 20,
-    ordering: false,
-  }); 
-
-  $("#modal_setting_roles").modal("show"); 
-  $("#lbltitulo_config").html("Asignación de permisos ");
-  $("#lblbtn_config").html("Salir");
-}
-
-
-function Desabilitar_permiso(id_menu_detalle) {
-  $.post(
-    "../../controllers/RolController.php?enpoint=Desabilitar_permiso",
-    { detalle_menu_id: id_menu_detalle },
-    function (data) {
-      console.log(data);
-      $("#tabla_permisos").DataTable().ajax.reload();
-    }
-  );
-}
-
-function Habilitar_permiso(id_menu_detalle) {
-  $.post(
-    "../../controllers/RolController.php?enpoint=Habilitar_permiso",
-    { detalle_menu_id: id_menu_detalle },
-    function (data) {
-      console.log(data);
-      $("#tabla_permisos").DataTable().ajax.reload();
-    }
-  );
-}
-
-function editar(Id) {
+  
+function editar(Id) { 
   $.post(  "../../controllers/RolController.php?enpoint=list_rol_id",
-    { id_rol: Id },
+    { rol_id: Id },
     function (data) {
-      console.log(data);
+     // console.log(data);
       data = JSON.parse(data); //Convertir a data a formato JSON
-      $("#id_rol").val(data.id);
+      $("#rol_id").val(data.id);
       $("#nombre").val(data.nombre);
       $("#descripcion").val(data.descripcion);
     }
   );
-  $("#lbltitulo").html("Actualizar Rol");
+  $("#label_title").html("Actualizar Rol");
 
-  $("#lblbtn").html("Actualizar");
+  $("#labelbtn").html("Actualizar");
   $("#modal_mantenimiento").modal("show");
 }
 
@@ -175,13 +119,13 @@ function eliminar(Id) {
         //Eliminar el registro utilizando una solicitud POST al controlador correspondiente
         $.post(
           "../../controllers/RolController.php?enpoint=delete",
-          { id_rol: Id },
+          { rol_id: Id },
           function (data) {
             console.log(data); //Mostrar posibles errores en la consola
           }
         );
         //Recargar la tabla después de eliminar el registro
-        $("#tabla_roles").DataTable().ajax.reload();
+        $("#table_roles").DataTable().ajax.reload();
         //Mostrar un mensaje de éxito al usuario utilizando SweetAlert
         swal.fire({
           title: "Registro eliminado",

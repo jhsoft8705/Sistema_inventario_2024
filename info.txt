@@ -1,0 +1,3 @@
+Nombre de base de datos:db_inventory
+PHP-JS  - MYSQL
+php v8.2

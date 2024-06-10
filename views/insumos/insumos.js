@@ -1,5 +1,5 @@
-var x = $("#usuario_id_session").val();
- 
+ var x = $("#usuario_id_session").val();
+console.log(x);
 function init() {
   $("#form_mantenimiento").on("submit", function (e) {
     //hacemos referencia al formulario por ID
@@ -11,16 +11,16 @@ function init() {
 function save_user_and_update(e) {
   e.preventDefault();
 
-  // var id = $("#Unidad de medida_id").val();
+  // var id = $("#insumo_id").val();
 
-  /* if (!form_validations()) {
+ /* if (!form_validations()) {
     return;
   }*/
   var formData = new FormData($("#form_mantenimiento")[0]);
   //formData.append("notificacion", notificacion);
 
   $.ajax({
-    url: "../../controllers/ProveedorController.php?endpoint=save_and_update_proveedores",
+    url: "../../controllers/InsumoController.php?endpoint=save_and_update_insumos",
     type: "POST",
     data: formData,
     contentType: false,
@@ -28,7 +28,7 @@ function save_user_and_update(e) {
     success: function (data) {
       $("#modal_mantenimiento").modal("hide");
 
-      $("#table_proveedores").DataTable().ajax.reload();
+      $("#table_insumos").DataTable().ajax.reload(); 
       swal.fire({
         title: "Registro Exitoso",
         text: "La operación se realizó correctamente",
@@ -36,20 +36,10 @@ function save_user_and_update(e) {
       });
     },
   });
-}
-
-$(document).ready(function () {
-
-  /*TODO:listar categoria*/
-  $.post( "../../controllers/CategoryController.php?endpoint=get_category_jcombox",
-    { true: true },
-    function (data) {
-      //console.log("Datos recibidos para cate:", data);
-      $("#categoria_id").html(data);
-    }
-  );
-  /*TODO:listar Unidad de medidas */
-  $("#table_proveedores").DataTable({
+} 
+$(document).ready(function () {  
+  /*TODO:listar Insumos */
+  $("#table_insumos").DataTable({
     aProcessing: true,
     aServerSide: true,
     dom: "Bfrtip",
@@ -58,28 +48,30 @@ $(document).ready(function () {
       {
         text: "Copiar",
         extend: "copyHtml5",
-        messageTop: "Tabla copiada al portapapeles",
+        messageTop: "Tabla copiada al portapapeles", 
         exportOptions: {
-          columns: [0, 1, 2], // Exclude the actions column
-        },
+          columns: [0, 1, 2] // Exclude the actions column
+        }
       },
       {
         text: "Exportar Excel",
         extend: "excelHtml5",
         exportOptions: {
-          columns: [0, 1, 2], // Exclude the actions column
-        },
+          columns: [0, 1, 2] // Exclude the actions column
+        }
+        
       },
       {
         text: "Imprimir",
         extend: "print",
         exportOptions: {
-          columns: [0, 1, 2], // Exclude the actions column
-        },
+          columns: [0, 1, 2] // Exclude the actions column
+        }
       },
+      
     ],
     ajax: {
-      url: "../../controllers/ProveedorController.php?endpoint=list_proveedores",
+      url: "../../controllers/InsumoController.php?endpoint=list_insumos",
       type: "post",
       data: { true: true },
     },
@@ -120,38 +112,77 @@ $(document).ready(function () {
           _: "%d líneas copiadas",
           1: "1 línea copiada",
         },
+
       },
     },
   });
-  
+    /*TODO:listar categoria*/
+    $.post( "../../controllers/CategoryController.php?endpoint=get_category_jcombox",
+      { true: true },
+      function (data) {
+        //console.log("Datos recibidos para cate:", data);
+        $("#categoria_id").html(data);
+        $("#categoria_id").select2({
+          dropdownParent: $('#modal_mantenimiento')
+        });
+      }
+    );
+    /*TODO:listar proveedores*/
+    $.post(  "../../controllers/ProveedorController.php?endpoint=get_provider_jcombox",
+      { true: true },
+      function (data) {
+        //console.log("Datos recibidos para pro:", data);
+        $("#proveedor_id").html(data);
+        $("#proveedor_id").select2({
+          dropdownParent: $('#modal_mantenimiento')
+        });
+      }
+    );
+    /*TODO:listar und*/
+    $.post(
+      "../../controllers/UnidadController.php?endpoint=get_unidad_jcombox",
+      { true: true },
+      function (data) {
+        //console.log("Datos recibidos para pro:", data);
+        $("#unidad_medida_id").html(data);
+        $("#unidad_medida_id").select2({
+          dropdownParent: $('#modal_mantenimiento')
+        });
+      }
+    );
 });
 
 function editar(Id) {
   $.post(
-    "../../controllers/ProveedorController.php?endpoint=list_proveedor_id",
-    { proveedor_id: Id },
+    "../../controllers/InsumoController.php?endpoint=list_insumo_id",
+    { insumo_id: Id },
     function (data) {
-      //console.log(data);
+      console.log(data);
       data = JSON.parse(data); //Convertir a data a formato JSON
-      $("#proveedor_id").val(data.id);
-      $("#tipo").val(data.tipo_documento);
-      $("#documento").val(data.numero_documento);
-      $("#nombre").val(data.nombres);
-      $("#apellido").val(data.apellidos);
-      $("#telefono").val(data.telefono);
-      $("#direccion").val(data.direccion);
-      $("#categoria_id").val(data.id_cate);
-      $("#nota").val(data.notas); 
+      $("#insumo_id").val(data.id);
+      $("#codigo").val(data.co_modular);
+      $("#nombre").val(data.nombre);
+      $("#descripcion").val(data.descripcion);
+      $("#categoria_id").val(data.categoria_id).trigger('change');
+      $("#proveedor_id").val(data.proveedor_id).trigger('change');
+      $("#marca").val(data.marca); 
+      $("#color").val(data.color);
+      $("#unidad_medida_id").val(data.unidadmedida_id).trigger('change');
+      $("#medida").val(data.medida);
+      $("#cantidad").val(data.cantidad);
+      $("#precio_unitario").val(data.precio_unitario);
+      $("#fecha_adquisicion").val(data.fecha_adquisicion);
+      $("#estado_insumo").val(data.estado_insumo);
+      $("#nota").val(data.nota); 
     }
   );
-  $("#label_title").html("Actualizar proveedor");
+  $("#label_title").html("Actualizar Registro");
   $("#labelbtn").html("Actualizar");
   $("#modal_mantenimiento").modal("show");
 }
 
 function eliminar(Id) {
-  console.log(Id);
-  //Mostrar un mensaje de confirmación al Unidad de medida utilizando SweetAlert
+  //Mostrar un mensaje de confirmación al Insumo utilizando SweetAlert
   swal
     .fire({
       title: "Eliminar registro",
@@ -167,15 +198,15 @@ function eliminar(Id) {
       if (result.value) {
         //Eliminar el registro utilizando una solicitud POST al controlador correspondiente
         $.post(
-          "../../controllers/ProveedorController.php?endpoint=delete",
-          { proveedor_id: Id },
+          "../../controllers/InsumoController.php?endpoint=delete",
+          { insumo_id: Id },
           function (data) {
             console.log(data); //Mostrar posibles errores en la consola
           }
         );
         //Recargar la tabla después de eliminar el registro
-        $("#table_proveedores").DataTable().ajax.reload();
-        //Mostrar un mensaje de éxito al Unidad de medida utilizando SweetAlert
+        $("#table_insumos").DataTable().ajax.reload();
+        //Mostrar un mensaje de éxito al Insumo utilizando SweetAlert
         swal.fire({
           title: "Registro eliminado",
           text: "El registro ha sido eliminado satisfactoriamente.",
@@ -192,15 +223,17 @@ $(document).on("click", "#btn_nuevo_registro", function () {
   // Limpiar div errors y quitar clases is-invalid
   $("#form_mantenimiento :input").val("");
   $("#form_mantenimiento")[0].reset();
-  //$("#Unidad de medida_id").val("");
+  //$("#insumo_id").val("");
 
-  $("#label_title").html("Registrar proveedor");
+  $("#label_title").html("Registrar Nuevo Insumo");
   $("#labelbtn").html("Registrar");
   $("#modal_mantenimiento").modal("show");
 
   //var notifiaciones = $("#notificacion").prop("checked");
   //console.log("NOTIFI SWCCI:" + notifiaciones);
 });
+
+ 
 
 function form_validations() {
   // Limpiar div errors y quitar clases is-invalid

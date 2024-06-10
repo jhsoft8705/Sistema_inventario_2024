@@ -12,21 +12,21 @@
                      <div class="mb-3">
                          <div class="input-group has-validation">
                              <!--<span class="input-group-d" id="nombre">@</span>--->
-                             <input hidden type="text" id="ubicacion_id" name="ubicacion_id" class="form-control"
-                                 placeholder="ubicacion_id" aria-describedby="ubicacion_id" />
+                             <input hidden type="text" id="taller_id" name="taller_id" class="form-control"
+                                 placeholder="taller_id" aria-describedby="taller_id" />
                              <div class="invalid-feedback">
-                                 Por favor ingresar nombre
+                                 Por favor ingresar
                              </div>
                          </div>
                      </div>
 
 
                      <div class="mb-3">
-                         <label for="nombre" class="form-label">Ubicación</label>
+                         <label for="nombre" class="form-label">Taller</label>
                          <div class="input-group has-validation">
                              <!--<span class="input-group-d" id="nombre">@</span>--->
                              <input type="text" id="nombre" name="nombre" class="form-control"
-                                 placeholder="Ingresar Categoría" aria-describedby="nombre" />
+                                 placeholder="Ingresar taller" aria-describedby="nombre" />
                              <div id="nombre_error" class="invalid-feedback">
                                  Por favor ingresar nombre
                              </div>
@@ -41,6 +41,7 @@
                              Message
                          </div>
                      </div> 
+
                  </div>
                  <div class="modal-footer">
                      <div class="hstack gap-2 justify-content-end">

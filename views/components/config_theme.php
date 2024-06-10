@@ -1,4 +1,4 @@
-    <!-- Theme Settings -->
+    <!-- Theme Settings 
     <div class="offcanvas offcanvas-end border-0" tabindex="-1" id="theme-settings-offcanvas">
         <div class="d-flex align-items-center bg-primary bg-gradient p-3 offcanvas-header">
             <h5 class="m-0 me-2 text-white">Theme Customizer</h5>
@@ -89,8 +89,7 @@
                             </div>
                             <h5 class="fs-13 text-center mt-2">Two Column</h5>
                         </div>
-                        <!-- end col -->
-                    </div>
+                     </div>
 
                     <h6 class="mt-4 mb-0 fw-semibold text-uppercase">Color Scheme</h6>
                     <p class="text-muted">Choose Light or Dark Scheme.</p>
@@ -528,8 +527,7 @@
                                 </button>
                                 <h5 class="fs-13 text-center mt-2">Gradient</h5>
                             </div>
-                        </div>
-                        <!-- end row -->
+                        </div> 
 
                         <div class="collapse" id="collapseBgGradient">
                             <div class="d-flex gap-2 flex-wrap img-switch p-2 px-3 bg-light rounded">
@@ -637,4 +635,4 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>  --->

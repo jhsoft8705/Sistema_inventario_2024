@@ -1,21 +1,21 @@
 <?php 
 require_once("../config/conexion.php");
-require_once("../models/Ubicacion.php");
+require_once("../models/Taller.php");
 
-$ubicacion = new Ubicacion();
+$taller = new Taller();
 
 switch($_GET['endpoint']) {
-    // Listar ubicaciones
-    case 'list_ubicaciones':
-        $datos = $ubicacion->list_ubicaciones();
+    // Listar talleres
+    case 'list_talleres':
+        $datos = $taller->list_talleres();
         $data = array();
         foreach($datos as $filas) {
             $sub_array = array();
-            $sub_array[] = $filas["U_Nombre"];
-            $sub_array[] = $filas["U_Descripcion"];
-            if($filas["Estado"] == 'Activo') {
+            $sub_array[] = $filas["T_Nombre"];
+            $sub_array[] = $filas["T_Descripcion"];
+            if($filas["Estado"]=='Activo') {
                 $sub_array[] = '<span class="badge bg-success">' . $filas["Estado"] . '</span>';
-            } else {
+            }else{
                 $sub_array[] = '<span class="badge bg-danger">' . $filas["Estado"] . '</span>';
             }
             $sub_array[] = '
@@ -45,50 +45,52 @@ switch($_GET['endpoint']) {
         echo json_encode($results);
     break;
 
-    // Listar ubicación por ID
-    case 'list_ubicacion_id':
-        $datos = $ubicacion->list_ubicacion_id($_POST["ubicacion_id"]);
+    // Listar taller por ID
+    case 'list_taller_id':
+        $datos = $taller->list_taller_id($_POST["taller_id"]);
         if(is_array($datos) && count($datos) > 0) {  
             foreach($datos as $row) {
                 $output["id"] = $row["Id"];
-                $output["nombre"] = $row["U_Nombre"]; 
-                $output["descripcion"] = $row["U_Descripcion"];
+                $output["nombre"] = $row["T_Nombre"];
+                $output["descripcion"] = $row["T_Descripcion"];
             }
             echo json_encode($output); 
         }
     break;
 
-    // Guardar y actualizar ubicaciones
-    case 'save_and_update_ubicaciones':
-        if(empty($_POST["ubicacion_id"])) { // Insertar
-            $ubicacion->insert_ubicacion(
+    // Guardar y actualizar talleres
+    case 'save_and_update_talleres':
+        if(empty($_POST["taller_id"])) { // Insertar
+            $taller->insert_taller(
                 $_POST["nombre"],
                 $_POST["descripcion"]
             );  
         } else { // Actualizar
-            $ubicacion->update_ubicacion(
-                $_POST["ubicacion_id"],   
+            $taller->update_taller(
+                $_POST["taller_id"],   
                 $_POST["nombre"],
                 $_POST["descripcion"]
             );  
         }       
     break;
     
-    // Eliminar ubicación
+    // Eliminar taller
     case 'delete': 
-        $ubicacion->delete_ubicacion($_POST["ubicacion_id"]);     
+        $taller->delete_taller($_POST["taller_id"]);     
     break;
 
-    // Obtener ubicaciones para combobox
-    case 'get_ubicacion_jcombox':
-    $datos=$ubicacion->list_ubicaciones();
-    if (is_array($datos) == true and count($datos) > 0) {
-        $html = "<option value=''>Seleccionar</option>";
-        foreach ($datos as $row) {
-          $html .= "<option value='" . $row['Id'] . "'>" . $row['U_Nombre'] ."</option>";
+    // Obtener talleres para combobox
+    case 'get_taller_jcombox':
+        $datos = $taller->list_talleres();
+        if (is_array($datos) && count($datos) > 0) {
+            $html = "<option value=''>Seleccionar</option>";
+            foreach ($datos as $row) {
+                if($row["Estado"]=='Activo'){
+                    $html .= "<option value='" . $row['Id'] . "'>" . $row['T_Nombre'] . "</option>";
+                }
+            }
+            echo $html;
         }
-        echo $html;
-    }
     break;
 }
 ?>

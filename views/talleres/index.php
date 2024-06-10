@@ -4,14 +4,16 @@ require_once("../../config/conexion.php");
 if(isset($_SESSION['usuario_id'])){ 
         
 ?>
+
+
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
     data-sidebar-image="none">
 
 <head>
-    <title>Roles | InvenTechPE</title>
+    <title>Talleres | InvenTechPE</title>
     <?php require_once("../components/head.php") ?>
-  
+
 </head>
 
 <body>
@@ -38,12 +40,12 @@ if(isset($_SESSION['usuario_id'])){
                         <!---Header--->
                         <div class="col-12 mb-1">
                             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                <h4 class="mb-sm-0">Roles</h4>
+                                <h4 class="mb-sm-0">Talleres</h4>
 
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
                                         <li class="breadcrumb-item"><a href="../home">Dashboard</a></li>
-                                        <li class="breadcrumb-item active">Roles</li>
+                                        <li class="breadcrumb-item active">Talleres</li>
                                     </ol>
                                 </div>
                             </div>
@@ -56,12 +58,12 @@ if(isset($_SESSION['usuario_id'])){
                                     <h5 class="card-title mb-0">
                                         </h4>
                                         <div class="col-sm-auto  ">
-                                            <div>  <!--
+                                            <div>
                                                 <button type="button" class="btn btn-primary add-btn mt-n4"
                                                     id="btn_nuevo_registro"><i
                                                         class="ri-add-line align-bottom me-1"></i> Nuevo
                                                     Registro</button>
-                                              <button class="btn btn-soft-danger" onclick="deleteMultiple()"><i
+                                                <!--<button class="btn btn-soft-danger" onclick="deleteMultiple()"><i
                                                             class="ri-delete-bin-2-line"></i></button>-->
                                             </div>
                                         </div>
@@ -75,7 +77,7 @@ if(isset($_SESSION['usuario_id'])){
                         <div class="col-lg-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0">Lista de Roles</h5>
+                                    <h5 class="card-title mb-0">Lista de talleres</h5>
                                 </div>
 
                                 <div class="card-body">
@@ -83,7 +85,8 @@ if(isset($_SESSION['usuario_id'])){
                                         class="dataTables_wrapper dt-bootstrap5 no-footer">-->
 
                                     <div id="buttons_table" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                                        <table id="table_roles" class="display table table-bordered dataTable no-footer"
+                                        <table id="table_talleres"
+                                            class="display table table-bordered dataTable no-footer"
                                             style="width: 100%;" aria-describedby="buttons-datatables_info">
                                             <thead>
                                                 <tr>
@@ -91,20 +94,21 @@ if(isset($_SESSION['usuario_id'])){
                                                         aria-controls="buttons-datatables" rowspan="1" colspan="1"
                                                         aria-sort="ascending"
                                                         aria-label="Name: activate to sort column descending"
-                                                        style="width: 124.4px;">Nombre</th>
+                                                        style="width: 20.4px;">Nombre</th>
+ 
                                                     <th class="sorting" tabindex="0" aria-controls="buttons-datatables"
                                                         rowspan="1" colspan="1"
                                                         aria-label="Position: activate to sort column ascending"
-                                                        style="width: 195.4px;">Descripción</th> 
+                                                        style="width: 50.4px;">Descripción</th>
                                                     <th class="sorting" tabindex="0" aria-controls="buttons-datatables"
                                                         rowspan="1" colspan="1"
                                                         aria-label="Salary: activate to sort column ascending"
-                                                        style="width: 55.4px;">Estado</th> 
+                                                        style="width: 10.4px;">Estado</th>
                                                     <th class="sorting" tabindex="0" aria-controls="buttons-datatables"
                                                         rowspan="1" colspan="1"
                                                         aria-label="Start date: activate to sort column ascending"
-                                                        style="width: 82.4px;">Acciones</th>  
-                                                 </tr>
+                                                        style="width: 20.4px;">Acciones</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
 
@@ -135,9 +139,6 @@ if(isset($_SESSION['usuario_id'])){
 
     </div>
     <!-- END layout-wrapper -->
-
-
-
     <!--start back-to-top-->
     <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
         <i class="ri-arrow-up-line"></i>
@@ -162,13 +163,14 @@ if(isset($_SESSION['usuario_id'])){
 
     <!-- App js
     <script src="../../assets/js/app.js"></script> -->
-    <script src="roles.js"></script>
- 
+    <script src="talleres.js"></script>
+
 
 
 </body>
 
 </html>
+
 <?php }else{ 
     header("location:".Conectar::ruta());
 }

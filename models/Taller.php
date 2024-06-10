@@ -1,80 +1,75 @@
-<?php
-class Ubicacion extends Conectar
-{
-    // Listar ubicaciones
-    public function list_ubicaciones() {
+<?php 
+class Taller extends Conectar 
+{  
+    public function list_talleres() {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL listar_ubicaciones()";
+            $sql = "CALL listar_talleres()";  
             $query = $conectar->prepare($sql);
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             echo "Error en la consulta: " . $e->getMessage();
-            return ["error" => "Ocurrió un error al ejecutar consulta"];
+            return ["error" => "Ocurrió un error al ejecutar consulta"]; 
         }
     }
 
-    // Insertar nueva ubicación
-    public function insert_ubicacion($nombre, $descripcion) {
+    public function insert_taller($nombre, $descripcion) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL registrar_ubicacion(?, ?)";
+            $sql = "CALL registrar_taller(?, ?)";
             $query = $conectar->prepare($sql);
             $query->bindValue(1, $nombre);
             $query->bindValue(2, $descripcion);
             $query->execute();
-            return "La ubicación se ha registrado con éxito.";
+            return "El taller se ha registrado con éxito."; 
         } catch (PDOException $e) {
             echo "Error en la consulta: " . $e->getMessage();
-            return ["error" => "Ocurrió un error al ejecutar consulta"];
+            return ["error" => "Ocurrió un error al ejecutar consulta"]; 
         }
     }
-
-    // Listar ubicación por ID
-    public function list_ubicacion_id($ubicacion_id) {
+    
+    public function list_taller_id($taller_id) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL listar_ubicacion_id(?)";
+            $sql = "CALL listar_taller_id(?)";  
             $query = $conectar->prepare($sql);
-            $query->bindValue(1, $ubicacion_id);
+            $query->bindValue(1, $taller_id); 
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             echo "Error en la consulta: " . $e->getMessage();
-            return ["error" => "Ocurrió un error al ejecutar consulta"];
+            return ["error" => "Ocurrió un error al ejecutar consulta"]; 
         }
     }
-
-    // Actualizar ubicación existente
-    public function update_ubicacion($id, $nombre, $descripcion) {
+ 
+    public function update_taller($id, $nombre, $descripcion) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL actualizar_ubicacion(?, ?, ?)";
+            $sql = "CALL actualizar_taller(?, ?, ?)";
             $query = $conectar->prepare($sql);
             $query->bindValue(1, $id);
             $query->bindValue(2, $nombre);
             $query->bindValue(3, $descripcion);
             $query->execute();
-            return "La ubicación se ha actualizado con éxito.";
+            return "El taller se ha actualizado con éxito."; 
         } catch (PDOException $e) {
             echo "Error en la consulta: " . $e->getMessage();
-            return ["error" => "Ocurrió un error al ejecutar consulta"];
+            return ["error" => "Ocurrió un error al ejecutar consulta"]; 
         }
     }
 
-    // Eliminar ubicación (cambiar estado a 'Eliminado')
-    public function delete_ubicacion($ubicacion_id) {
+    public function delete_taller($taller_id) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL eliminar_ubicacion(?)";
+            $sql = "CALL eliminar_taller(?)";  
             $query = $conectar->prepare($sql);
-            $query->bindValue(1, $ubicacion_id);
+            $query->bindValue(1, $taller_id); 
             $query->execute();
-            return "La ubicación se ha eliminado con éxito.";
+            return "El taller se ha eliminado con éxito."; 
         } catch (PDOException $e) {
             echo "Error en la consulta: " . $e->getMessage();
-            return ["error" => "Ocurrió un error al ejecutar consulta"];
+            return ["error" => "Ocurrió un error al ejecutar consulta"]; 
         }
     }
 }
