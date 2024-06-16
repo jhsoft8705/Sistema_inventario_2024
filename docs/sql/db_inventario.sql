@@ -215,6 +215,84 @@ CREATE TABLE Insumos (
     CONSTRAINT FK_Insumo_Proveedor FOREIGN KEY (Proveedor_id) REFERENCES Proveedores(Id) ON DELETE CASCADE
 );
 
+
+CREATE TABLE Asignacion(
+    Id INT AUTO_INCREMENT PRIMARY KEY, 
+    Codigo VARCHAR(200) DEFAULT NULL, 
+    Taller_Id INT,  
+    Periodo_id INT,   
+    Usuario_Id INT, 
+    EstadoAsigacion ENUM('Asignado', 'Sobrante'),
+    Descripcion VARCHAR(250),  
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado','PreActivo') NOT NULL DEFAULT 'PreActivo',
+    FechaRegistro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FechaActualizacion DATETIME,
+    CONSTRAINT FK_Asignacion_Taller FOREIGN KEY (Taller_Id) REFERENCES Talleres(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_Asignacion_Periodo FOREIGN KEY (Periodo_id) REFERENCES Talleres(Id) ON DELETE CASCADE, 
+    CONSTRAINT FK_Asignacion_Usuario FOREIGN KEY (Usuario_Id) REFERENCES Usuarios(Id) ON DELETE CASCADE
+
+ );
+
+
+/*Cod Autoincrementable*/
+DELIMITER // 
+CREATE TRIGGER antes_insert_asignacion
+BEFORE INSERT ON Asignacion
+FOR EACH ROW
+BEGIN
+    DECLARE last_id INT;
+    DECLARE new_code VARCHAR(200); 
+    -- Obtenemos el último Id insertado
+    SELECT IFNULL(MAX(Id), 0) INTO last_id FROM Asignacion; 
+    -- Generamos el nuevo código basado en el último Id
+    SET new_code = CONCAT('AS-', LPAD(last_id + 1, 4, '0')); 
+    -- Asignamos el nuevo código al campo Codigo del nuevo registro
+    SET NEW.Codigo = new_code;
+END// 
+DELIMITER ;
+ 
+
+ 
+CREATE TABLE Detalle_Asignacion_Equipos(
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Equipo_Id INT,
+    Asignacion_Id INT,
+    Cantidad INT,
+    Precio_Unitario DECIMAL(10, 2),
+    Total DECIMAL(10, 2),  
+    EstadoDetalle ENUM('Asignado') NOT NULL DEFAULT 'Asignado',   
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',   
+    CONSTRAINT FK_Detalle_Equipo FOREIGN KEY (Equipo_id) REFERENCES Equipos(Id) ON DELETE CASCADE ,  
+    CONSTRAINT FK_Detalle_Asignacion FOREIGN KEY (Asignacion_Id) REFERENCES Asignacion(Id) ON DELETE CASCADE   
+);
+ 
+ CREATE TABLE Detalle_Asignacion_Herramientas(
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Herramienta_Id INT,
+    Asignacion_Id INT,
+    Cantidad INT,
+    Precio_Unitario DECIMAL(10, 2),
+    Total DECIMAL(10, 2),  
+    EstadoDetalle ENUM('Asignado') NOT NULL DEFAULT 'Asignado',   
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',   
+    CONSTRAINT FK_Detalle_Herramienta FOREIGN KEY (Herramienta_Id) REFERENCES Herramientas(Id) ON DELETE CASCADE,   
+    CONSTRAINT FK_Detalle_AsignacionH FOREIGN KEY (Asignacion_Id) REFERENCES Asignacion(Id) ON DELETE CASCADE   
+);
+ 
+ CREATE TABLE Detalle_Asignacion_Insumos(
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Insumos_Id INT,
+    Asignacion_Id INT,
+    Cantidad INT,
+    Precio_Unitario DECIMAL(10, 2),
+    Total DECIMAL(10, 2),  
+    EstadoDetalle ENUM('Asignado') NOT NULL DEFAULT 'Asignado',   
+    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',   
+    CONSTRAINT FK_Detalle_Insumos FOREIGN KEY (Insumos_Id) REFERENCES Insumos(Id) ON DELETE CASCADE   ,
+    CONSTRAINT FK_Detalle_AsignacionI FOREIGN KEY (Asignacion_Id) REFERENCES Asignacion(Id) ON DELETE CASCADE   
+);
+
+
 CREATE TABLE Faltantes(
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Codigo VARCHAR(200) DEFAULT NULL, 
@@ -242,19 +320,6 @@ CREATE TABLE Sobrantes(
     CONSTRAINT FK_sobrante_Equipo FOREIGN KEY (Equipo_id) REFERENCES Equipos(Id) ON DELETE CASCADE   
 );
 
-
-CREATE TABLE Asignados(
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    Codigo VARCHAR(200) DEFAULT NULL, 
-    Nombre VARCHAR(150), 
-    Cantidad INT,
-    Precio_Unitario DECIMAL(10, 2),
-    Total DECIMAL(10, 2), 
-    Equipo_id INT,
-    EstadoEquipo ENUM( 'Sobrante') NOT NULL DEFAULT 'Sobrante',   
-    Estado ENUM('Activo', 'Inactivo', 'Eliminado') NOT NULL DEFAULT 'Activo',   
-    CONSTRAINT FK_sobrante_Equipo FOREIGN KEY (Equipo_id) REFERENCES Equipos(Id) ON DELETE CASCADE   
-);
 
  
 

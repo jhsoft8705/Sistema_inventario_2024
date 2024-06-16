@@ -79,11 +79,14 @@ switch($_GET['endpoint']) {
                 $output["medida"] = $row["Medida"];
                 $output["cantidad"] = $row["Cantidad"];
                 $output["precio_unitario"] = $row["Precio_Unitario"];
+                $output["total"] = $row["Total"]; 
                 $output["fecha_adquisicion"] = $row["Fecha_Adquision"];
                 $output["estado_equipo"] = $row["Estado_Equipo"];
                 $output["nota"] = $row["Nota"];
             }
             echo json_encode($output); 
+        }else{
+            echo json_encode([]); 
         }
     break;
 
@@ -146,7 +149,7 @@ break;
             $html = "<option value=''>Seleccionar</option>";
             foreach ($datos as $row) {
                 if($row["Estado"]=='Activo'){
-                    $html .= "<option value='" . $row['Id'] . "'>" . $row['Nombre'] . "</option>";
+                    $html .= "<option value='" . $row['Id'] . "'>". $row['Codigo'] .' - ' . $row['Nombre'] .' - '. $row['Descripcion'] .' - '. $row['Marca'] .' - '. $row['Modelo'] ."</option>";
                 }
             }
             echo $html;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-06-2024 a las 05:52:45
+-- Tiempo de generación: 16-06-2024 a las 19:38:55
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -181,8 +181,36 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `actualizar_unidad_medida` (IN `unid
     WHERE Id = unidad_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `create_temporary_asignacion` (IN `id_usuario` INT)   BEGIN
+    DECLARE preactivo_count INT;
+    
+    -- Verificar si existe un registro con Estado 'PreActivo'
+    SELECT COUNT(*) INTO preactivo_count FROM Asignacion WHERE Estado = 'PreActivo';
+    
+    IF preactivo_count > 0 THEN
+        -- Si existe un registro 'PreActivo', devolver ese registro
+        SELECT * FROM Asignacion WHERE Estado = 'PreActivo';
+    ELSE
+        -- Si no existe un registro 'PreActivo', insertar uno nuevo y devolverlo
+        INSERT INTO Asignacion (Usuario_Id) VALUES (id_usuario);
+        SELECT * FROM Asignacion WHERE Id = LAST_INSERT_ID();
+    END IF;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_categoria` (IN `cate_id` INT)   BEGIN
 	UPDATE categorias SET Estado='Eliminado' WHERE Id=cate_id ;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_detalle_equipo` (IN `detalle_e_id` INT)   BEGIN
+    UPDATE detalle_asignacion_equipos SET Estado='Eliminado' WHERE Id=detalle_e_id ;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_detalle_herramienta` (IN `detalle_h_id` INT)   BEGIN
+    UPDATE detalle_asignacion_herramientas SET Estado = 'Eliminado' WHERE Id = detalle_h_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_detalle_insumo` (IN `detalle_i_id` INT)   BEGIN
+    UPDATE detalle_asignacion_insumos SET Estado = 'Eliminado' WHERE Id = detalle_i_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_equipo` (IN `equipo_id` INT)   BEGIN
@@ -321,6 +349,75 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_almacen_id` (IN `almacen_id`
         UnidadMedida um ON e.UnidadMedida_id = um.Id
     WHERE 
         e.Id = almacen_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_asignaciones` (IN `input_search` VARCHAR(250))   BEGIN
+    -- Tabla temporal para almacenar resultados intermedios
+    CREATE TEMPORARY TABLE IF NOT EXISTS temp_results (
+        asignacion_id INT,
+        Codigo VARCHAR(255),
+        Descripcion TEXT,
+        EstadoAsigacion VARCHAR(50),
+        Estado VARCHAR(50),
+        FechaRegistro DATETIME,
+        FechaActualizacion DATETIME,
+        T_Nombre VARCHAR(255),
+        Periodo_Nombre VARCHAR(255),
+        Periodo_Fecha_Inicio DATE,
+        Periodo_Fecha_Fin DATE,
+        NombreRol VARCHAR(255),
+        NombresUsuario VARCHAR(255),
+        ApellidosUsuario VARCHAR(255),
+        CorreoElectronico VARCHAR(255),
+        CantidadE INT,
+        TotalE DECIMAL(10, 2),
+        CantidadH INT,
+        TotalH DECIMAL(10, 2),
+        CantidadI INT,
+        TotalI DECIMAL(10, 2),
+        TotalGeneral DECIMAL(10, 2)
+
+    ); 
+    -- Insertar datos en la tabla temporal
+    INSERT INTO temp_results
+    SELECT
+        a.Id AS asignacion_id,
+        a.Codigo, 
+        a.Descripcion,
+        a.EstadoAsigacion,
+        a.Estado,
+        a.FechaRegistro,
+        a.FechaActualizacion,
+        t.T_Nombre,
+        p.Nombre AS Periodo_Nombre,
+        p.Fecha_Inicio AS Periodo_Fecha_Inicio,
+        p.Fecha_Fin AS Periodo_Fecha_Fin,
+        r.NombreRol,
+        u.NombresUsuario,
+        u.ApellidosUsuario,
+        u.CorreoElectronico,
+        (SELECT COUNT(*) FROM Detalle_Asignacion_Equipos WHERE Asignacion_Id = a.Id) AS CantidadE,
+        (SELECT SUM(Total) FROM Detalle_Asignacion_Equipos WHERE Asignacion_Id = a.Id) AS TotalE,
+        (SELECT COUNT(*) FROM Detalle_Asignacion_Herramientas WHERE Asignacion_Id = a.Id) AS CantidadH,
+        (SELECT SUM(Total) FROM Detalle_Asignacion_Herramientas WHERE Asignacion_Id = a.Id) AS TotalH,
+        (SELECT COUNT(*) FROM Detalle_Asignacion_Insumos WHERE Asignacion_Id = a.Id) AS CantidadI,
+        (SELECT SUM(Total) FROM Detalle_Asignacion_Insumos WHERE Asignacion_Id = a.Id) AS TotalI,
+        (SELECT SUM(Total) FROM Detalle_Asignacion_Equipos WHERE Asignacion_Id = a.Id) +
+        (SELECT SUM(Total) FROM Detalle_Asignacion_Herramientas WHERE Asignacion_Id = a.Id) +
+        (SELECT SUM(Total) FROM Detalle_Asignacion_Insumos WHERE Asignacion_Id = a.Id) AS TotalGeneral
+    FROM Asignacion AS a
+    INNER JOIN Talleres AS t ON t.Id = a.Taller_Id
+    INNER JOIN Usuarios AS u ON u.Id = a.Usuario_Id
+    INNER JOIN Periodos AS p ON p.Id = a.Periodo_id
+    LEFT JOIN roles AS r ON r.Id = u.Id_rol
+    WHERE a.Estado = 'Activo' AND a.EstadoAsigacion = 'Asignado' 
+    AND (input_search IS NULL OR t.T_Nombre LIKE CONCAT('%', input_search, '%'));
+
+    -- Seleccionar resultados de la tabla temporal
+    SELECT * FROM temp_results;
+
+    -- Limpiar tabla temporal
+    DROP TEMPORARY TABLE IF EXISTS temp_results;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_categorias` ()   BEGIN
@@ -589,6 +686,69 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_usuarios` ()   BEGIN
     WHERE U.Estado IN ('Activo','Inactivo') ;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `list_detalle_equipos_x_orden_id` (IN `asignacion_id` INT)   BEGIN 
+	SELECT
+    A.Id As Id_Asignacion,
+    E.Codigo,
+    E.Co_Modular,
+    E.Nombre,
+    E.Descripcion,
+    E.Marca,
+    DAH.Id,
+    DAH.Equipo_Id, 
+    DAH.Cantidad,
+    DAH.Precio_Unitario,
+    DAH.Total,
+    DAH.EstadoDetalle,
+    DAH.Estado
+    FROM detalle_asignacion_equipos AS DAH
+    INNER JOIN Asignacion AS A ON A.Id=DAH.Asignacion_Id
+    INNER JOIN Equipos AS E ON E.Id=DAH.Equipo_Id 
+    WHERE DAH.Asignacion_Id=asignacion_id AND DAH.Estado IN('Activo');
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `list_detalle_herramientas_x_orden_id` (IN `asignacion_id` INT)   BEGIN 
+    SELECT
+        A.Id As Id_Asignacion,
+        H.Codigo,
+        H.Co_Modular,
+        H.Nombre,
+        H.Descripcion,
+        H.Marca,
+        DAH.Id,
+        DAH.Herramienta_Id, 
+        DAH.Cantidad,
+        DAH.Precio_Unitario,
+        DAH.Total,
+        DAH.EstadoDetalle,
+        DAH.Estado
+    FROM detalle_asignacion_herramientas AS DAH
+    INNER JOIN Asignacion AS A ON A.Id=DAH.Asignacion_Id
+    INNER JOIN Herramientas AS H ON H.Id=DAH.Herramienta_Id 
+    WHERE DAH.Asignacion_Id = asignacion_id AND DAH.Estado IN('Activo');
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `list_detalle_insumos_x_orden_id` (IN `asignacion_id` INT)   BEGIN 
+    SELECT
+        A.Id AS Id_Asignacion,
+        I.Codigo,
+        I.Co_Modular,
+        I.Nombre,
+        I.Descripcion,
+        I.Marca,
+        DAI.Id,
+        DAI.Insumos_Id, 
+        DAI.Cantidad,
+        DAI.Precio_Unitario,
+        DAI.Total,
+        DAI.EstadoDetalle,
+        DAI.Estado
+    FROM detalle_asignacion_insumos AS DAI
+    INNER JOIN Asignacion AS A ON A.Id = DAI.Asignacion_Id
+    INNER JOIN Insumos AS I ON I.Id = DAI.Insumos_Id 
+    WHERE DAI.Asignacion_Id = asignacion_id AND DAI.Estado IN ('Activo');
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_almacen` (IN `p_codigo` VARCHAR(200), IN `p_nombre` VARCHAR(150), IN `p_descripcion` VARCHAR(250), IN `p_tipo` VARCHAR(20), IN `p_ubicacion_id` INT, IN `p_categoria_id` INT, IN `p_proveedor_id` INT, IN `p_marca` VARCHAR(50), IN `p_modelo` VARCHAR(50), IN `p_serie` VARCHAR(100), IN `p_color` VARCHAR(30), IN `p_unidad_medida_id` INT, IN `p_medida` VARCHAR(50), IN `p_cantidad` INT, IN `p_precio_unitario` DECIMAL(10,2), IN `p_fecha_adquisicion` DATE, IN `p_adjunto` VARCHAR(250), IN `p_estado_equipo` VARCHAR(15), IN `p_nota` VARCHAR(250))   BEGIN
     INSERT INTO Almacen (
         Codigo, 
@@ -636,6 +796,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_almacen` (IN `p_codigo` V
     );
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_asignacion` (IN `asignacion_id` INT, IN `taller_id` INT, `periodo_id` INT, IN `usuario_id` INT, IN `descripcion` VARCHAR(250))   BEGIN
+    UPDATE asignacion SET Taller_id=taller_id,Periodo_id=periodo_id, Usuario_id = usuario_id,
+    Descripcion=descripcion,Estado='Activo', EstadoAsigacion='Asignado' WHERE Id=asignacion_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_categoria` (IN `p_nombres` VARCHAR(100), IN `p_descripcion` VARCHAR(100))   BEGIN
     INSERT INTO Categorias (
         NombresCategoria, 
@@ -645,6 +810,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_categoria` (IN `p_nombres
         p_nombres, 
         p_descripcion 
     );
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_detalle_equipo` (IN `equipo_id` INT, IN `asignacion_id` INT, IN `cantidad` INT, IN `precio_unitario` DECIMAL(10,2))   BEGIN
+    INSERT INTO detalle_asignacion_equipos(Equipo_Id,  Asignacion_Id, Cantidad, Precio_Unitario,Total )
+     VALUES( equipo_id,asignacion_id, cantidad, precio_unitario,cantidad*precio_unitario);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_detalle_herramienta` (IN `herramienta_id` INT, IN `asignacion_id` INT, IN `cantidad` INT, IN `precio_unitario` DECIMAL(10,2))   BEGIN
+    INSERT INTO detalle_asignacion_herramientas(Herramienta_Id, Asignacion_Id, Cantidad, Precio_Unitario,Total) 
+    VALUES(herramienta_id, asignacion_id, cantidad, precio_unitario,cantidad*precio_unitario);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_detalle_insumo` (IN `insumo_id` INT, IN `asignacion_id` INT, IN `cantidad` INT, IN `precio_unitario` DECIMAL(10,2))   BEGIN
+    INSERT INTO detalle_asignacion_insumos(Insumos_Id, Asignacion_Id, Cantidad, Precio_Unitario,Total) 
+    VALUES(insumo_id, asignacion_id, cantidad, precio_unitario,cantidad*precio_unitario);
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `registrar_equipo` (IN `p_co_modular` VARCHAR(200), IN `p_nombre` VARCHAR(150), IN `p_descripcion` VARCHAR(250), IN `p_categoria_id` INT, IN `p_proveedor_id` INT, IN `p_marca` VARCHAR(50), IN `p_modelo` VARCHAR(50), IN `p_serie` VARCHAR(100), IN `p_color` VARCHAR(30), IN `p_unidadmedida_id` INT, IN `p_medida` VARCHAR(50), IN `p_cantidad` INT, IN `p_precio_unitario` DECIMAL(10,2), IN `p_fecha_adquisicion` DATE, IN `p_estado_equipo` ENUM('Nuevo','Regular','Viejo'), IN `p_nota` VARCHAR(250))   BEGIN
@@ -939,6 +1119,51 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `asignacion`
+--
+
+CREATE TABLE `asignacion` (
+  `Id` int(11) NOT NULL,
+  `Codigo` varchar(200) DEFAULT NULL,
+  `Taller_Id` int(11) DEFAULT NULL,
+  `Periodo_id` int(11) DEFAULT NULL,
+  `Usuario_Id` int(11) DEFAULT NULL,
+  `EstadoAsigacion` enum('Asignado','Sobrante') DEFAULT NULL,
+  `Descripcion` varchar(250) DEFAULT NULL,
+  `Estado` enum('Activo','Inactivo','Eliminado','PreActivo') NOT NULL DEFAULT 'PreActivo',
+  `FechaRegistro` datetime NOT NULL DEFAULT current_timestamp(),
+  `FechaActualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `asignacion`
+--
+
+INSERT INTO `asignacion` (`Id`, `Codigo`, `Taller_Id`, `Periodo_id`, `Usuario_Id`, `EstadoAsigacion`, `Descripcion`, `Estado`, `FechaRegistro`, `FechaActualizacion`) VALUES
+(1, 'AS-0001', 2, 2, 4, 'Asignado', 'wewe', 'Activo', '2024-06-14 22:14:15', NULL),
+(2, 'AS-0002', 16, 16, 8, 'Asignado', 'test', 'Activo', '2024-06-14 22:28:45', NULL),
+(3, 'AS-0003', NULL, NULL, 11, NULL, NULL, 'PreActivo', '2024-06-14 23:17:56', NULL);
+
+--
+-- Disparadores `asignacion`
+--
+DELIMITER $$
+CREATE TRIGGER `antes_insert_asignacion` BEFORE INSERT ON `asignacion` FOR EACH ROW BEGIN
+    DECLARE last_id INT;
+    DECLARE new_code VARCHAR(200); 
+    -- Obtenemos el último Id insertado
+    SELECT IFNULL(MAX(Id), 0) INTO last_id FROM Asignacion; 
+    -- Generamos el nuevo código basado en el último Id
+    SET new_code = CONCAT('AS-', LPAD(last_id + 1, 4, '0')); 
+    -- Asignamos el nuevo código al campo Codigo del nuevo registro
+    SET NEW.Codigo = new_code;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `categorias`
 --
 
@@ -968,6 +1193,86 @@ INSERT INTO `categorias` (`Id`, `NombresCategoria`, `DescripcionCategoria`, `Est
 (10, 'Ferretería', 'Materiales y herramientas de construcción', 'Activo', '2024-05-19 15:36:59', NULL),
 (11, 'Instrumentos Musicales', 'Instrumentos y accesorios musicales', 'Activo', '2024-05-19 15:36:59', NULL),
 (12, '', '', 'Eliminado', '2024-05-22 21:47:13', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_asignacion_equipos`
+--
+
+CREATE TABLE `detalle_asignacion_equipos` (
+  `Id` int(11) NOT NULL,
+  `Equipo_Id` int(11) DEFAULT NULL,
+  `Asignacion_Id` int(11) DEFAULT NULL,
+  `Cantidad` int(11) DEFAULT NULL,
+  `Precio_Unitario` decimal(10,2) DEFAULT NULL,
+  `Total` decimal(10,2) DEFAULT NULL,
+  `EstadoDetalle` enum('Asignado') NOT NULL DEFAULT 'Asignado',
+  `Estado` enum('Activo','Inactivo','Eliminado') NOT NULL DEFAULT 'Activo'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `detalle_asignacion_equipos`
+--
+
+INSERT INTO `detalle_asignacion_equipos` (`Id`, `Equipo_Id`, `Asignacion_Id`, `Cantidad`, `Precio_Unitario`, `Total`, `EstadoDetalle`, `Estado`) VALUES
+(1, 2, 1, 1, 120.00, 120.00, 'Asignado', 'Activo'),
+(2, 3, 1, 1, 144.00, 144.00, 'Asignado', 'Activo'),
+(3, 1, 2, 1, 144.00, 144.00, 'Asignado', 'Activo'),
+(4, 3, 2, 1, 144.00, 144.00, 'Asignado', 'Activo'),
+(5, 10, 2, 1, 144.00, 144.00, 'Asignado', 'Activo');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_asignacion_herramientas`
+--
+
+CREATE TABLE `detalle_asignacion_herramientas` (
+  `Id` int(11) NOT NULL,
+  `Herramienta_Id` int(11) DEFAULT NULL,
+  `Asignacion_Id` int(11) DEFAULT NULL,
+  `Cantidad` int(11) DEFAULT NULL,
+  `Precio_Unitario` decimal(10,2) DEFAULT NULL,
+  `Total` decimal(10,2) DEFAULT NULL,
+  `EstadoDetalle` enum('Asignado') NOT NULL DEFAULT 'Asignado',
+  `Estado` enum('Activo','Inactivo','Eliminado') NOT NULL DEFAULT 'Activo'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `detalle_asignacion_herramientas`
+--
+
+INSERT INTO `detalle_asignacion_herramientas` (`Id`, `Herramienta_Id`, `Asignacion_Id`, `Cantidad`, `Precio_Unitario`, `Total`, `EstadoDetalle`, `Estado`) VALUES
+(1, 1, 1, 1, 15.00, 15.00, 'Asignado', 'Activo'),
+(2, 4, 1, 1, 25.00, 25.00, 'Asignado', 'Activo'),
+(3, 1, 2, 1, 15.00, 15.00, 'Asignado', 'Activo'),
+(4, 3, 2, 1, 10.00, 10.00, 'Asignado', 'Activo');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_asignacion_insumos`
+--
+
+CREATE TABLE `detalle_asignacion_insumos` (
+  `Id` int(11) NOT NULL,
+  `Insumos_Id` int(11) DEFAULT NULL,
+  `Asignacion_Id` int(11) DEFAULT NULL,
+  `Cantidad` int(11) DEFAULT NULL,
+  `Precio_Unitario` decimal(10,2) DEFAULT NULL,
+  `Total` decimal(10,2) DEFAULT NULL,
+  `EstadoDetalle` enum('Asignado') NOT NULL DEFAULT 'Asignado',
+  `Estado` enum('Activo','Inactivo','Eliminado') NOT NULL DEFAULT 'Activo'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `detalle_asignacion_insumos`
+--
+
+INSERT INTO `detalle_asignacion_insumos` (`Id`, `Insumos_Id`, `Asignacion_Id`, `Cantidad`, `Precio_Unitario`, `Total`, `EstadoDetalle`, `Estado`) VALUES
+(1, 1, 1, 1, 2.50, 2.50, 'Asignado', 'Activo'),
+(2, 1, 2, 1, 2.50, 2.50, 'Asignado', 'Activo');
 
 -- --------------------------------------------------------
 
@@ -1005,8 +1310,8 @@ CREATE TABLE `equipos` (
 --
 
 INSERT INTO `equipos` (`Id`, `Codigo`, `Co_Modular`, `Nombre`, `Descripcion`, `Categoria_id`, `Proveedor_id`, `Marca`, `Modelo`, `Serie`, `Color`, `UnidadMedida_id`, `Medida`, `Cantidad`, `Precio_Unitario`, `Total`, `Fecha_Adquision`, `Estado_Equipo`, `Nota`, `Estado`, `FechaRegistro`, `FechaActualizacion`) VALUES
-(1, 'EQ-00001', '67502360', 'MAQUINA DE COSER', 'DOMESTICA COSTURA RECTA', 1, 1, 'SINGER', 'N/A', 'RB55571', 'MARRON', 1, NULL, 1, 144.00, NULL, NULL, 'Regular', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
-(2, 'EQ-00002', '67502360', 'MAQUINA DE COSER', 'DOMESTICA COSTURA RECTA', 1, 1, 'SINGER', 'N/A', 'RB56301', 'MARRON', 1, NULL, 1, 120.00, NULL, NULL, 'Regular', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
+(1, 'EQ-00001', '67502360', 'MAQUINA DE COSER', 'DOMESTICA COSTURA RECTA', 1, 1, 'SINGER', 'N/A', 'RB55571', 'MARRON', 1, NULL, 2, 144.00, 2500.00, NULL, 'Regular', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
+(2, 'EQ-00002', '67502360', 'MAQUINA DE COSER', 'DOMESTICA COSTURA RECTA', 3, 1, 'SINGER', 'N/A', 'RB56301', 'MARRON', 1, 'Caja de 100', 2, 120.00, 240.00, '2024-06-10', 'Regular', '', 'Activo', '2024-06-08 18:24:23', '2024-06-10 17:56:21'),
 (3, 'EQ-00003', '67502360', 'MAQUINA DE COSER', 'DOMESTICA COSTURA RECTA', 1, 1, 'SINGER', 'N/A', 'RB219418', 'MARRON', 1, NULL, 1, 144.00, NULL, NULL, 'Regular', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
 (4, 'EQ-00004', '67502360', 'MAQUINA DE COSER', 'DOMESTICA COSTURA RECTA', 1, 1, 'SINGER', 'N/A', 'Nª0172291', 'MARRON', 1, NULL, 1, 144.00, NULL, NULL, 'Regular', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
 (5, 'EQ-00005', '67502360', 'MAQUINA DE COSER', 'DOMESTICA COSTURA RECTA', 1, 1, 'SINGER', 'N/A', 'RB055980', 'MARRON', 1, NULL, 1, 144.00, NULL, NULL, 'Regular', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
@@ -1032,7 +1337,10 @@ INSERT INTO `equipos` (`Id`, `Codigo`, `Co_Modular`, `Nombre`, `Descripcion`, `C
 (25, 'EQ-00025', NULL, 'Máquina Costura Recta', 'INDUSTRIAL INDUSTRIAL', 1, 1, 'SINGER', 'N/A', 'Nª DOEK04069', 'BLANCO', 1, NULL, 1, 1200.00, NULL, NULL, '', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
 (26, 'EQ-00026', NULL, 'Máquina Costura Recta', 'INDUSTRIAL INDUSTRIAL', 1, 1, 'SINGER', 'N/A', 'Nª132491543', 'BLANCO', 1, NULL, 1, 1200.00, NULL, NULL, '', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
 (27, 'EQ-00027', NULL, 'Máquina Recubridora', 'INDUSTRIAL INDUSTRIAL', 1, 1, 'SINGER', 'N/A', 'Nª12435077', 'BLANCO', 1, NULL, 1, 2400.00, NULL, NULL, '', NULL, 'Activo', '2024-06-08 18:24:23', NULL),
-(28, 'EQ-00028', 'CM-001', 'Maquina recta', 'INDUSTRIAL INDUSTRIAL', 5, 4, 'COBALT', 'N/A', 'CM-9510 M', 'BLANCO', 4, '20 CM ', 1, 1790.00, 1790.00, '2024-06-08', 'Nuevo', 'INDUSTRIAL INDUSTRIAL', 'Activo', '2024-06-08 18:24:23', '2024-06-08 18:27:03');
+(28, 'EQ-00028', 'CM-001', 'Maquina recta', 'INDUSTRIAL INDUSTRIAL', 5, 4, 'COBALT', 'N/A', 'CM-9510 M', 'BLANCO', 4, '20 CM ', 1, 1790.00, 1790.00, '2024-06-08', 'Nuevo', 'INDUSTRIAL INDUSTRIAL', 'Activo', '2024-06-08 18:24:23', '2024-06-08 18:27:03'),
+(29, 'EQ-00029', 'CM-001', 'Computadora', 'Computadora de escritorio con procesador Intel Core i5 y 8GB de RAM', 1, 1, 'HP', 'Pavilion', 'XYZ123', 'Negro', 1, 'Unidad', 5, 750.00, 3750.00, '2024-06-07', 'Nuevo', 'Equipos para oficina', 'Activo', '2024-06-10 17:57:59', NULL),
+(30, 'EQ-00030', 'CM-002', 'Mouse', 'Mouse óptico con cable USB', 2, 1, 'Logitech', 'M100', 'ABC123', 'Negro', 2, 'Unidad', 10, 15.00, 150.00, '2024-06-07', 'Nuevo', 'Accesorio para computadora', 'Activo', '2024-06-10 17:57:59', NULL),
+(31, 'EQ-00031', 'CM-003', 'Memorias', 'Memoria RAM DDR4 de 8GB', 3, 1, 'Kingston', 'HyperX', '123XYZ', 'Negro', 3, 'Unidad', 20, 40.00, 800.00, '2024-06-07', 'Nuevo', 'Componente de computadora', 'Activo', '2024-06-10 17:57:59', NULL);
 
 --
 -- Disparadores `equipos`
@@ -1230,7 +1538,7 @@ CREATE TABLE `proveedores` (
 
 INSERT INTO `proveedores` (`Id`, `Tipo_Documento`, `NumeroDocumento`, `P_Nombres`, `P_Apellidos`, `Telefono`, `Direccion`, `Id_Cate`, `Notas`, `Estado`, `FechaRegistro`, `FechaActualizacion`) VALUES
 (1, 'Dni', '73569079', 'Ministerio', 'de educación', '901202339', '123 Calle Principal', 7, 'test', 'Activo', '2024-05-23 00:28:25', '2024-06-07 18:49:38'),
-(4, 'Ruc', '73569079', 'Proveedor', 'Generico', '98738646', 'La jalca grande camino a torre bitel', 8, 'Proveedor de muebles', 'Activo', '2024-05-23 21:38:23', '2024-06-07 18:49:55'),
+(4, 'Ruc', '73569079', 'Proveedor', 'Generico', '98738646', 'La jalca grande camino a torre bitel', 8, 'Proveedor de muebles', 'Activo', '2024-05-23 21:38:23', '2024-06-10 22:36:44'),
 (5, 'Pasaporte', '', '', '', '', '', 7, '', 'Eliminado', '2024-05-26 23:38:17', NULL);
 
 -- --------------------------------------------------------
@@ -1254,7 +1562,8 @@ CREATE TABLE `roles` (
 
 INSERT INTO `roles` (`Id`, `NombreRol`, `Descripcion`, `Estado`, `FechaRegistro`, `FechaActualizacion`) VALUES
 (1, 'Administrador', 'Rol con acceso total', 'Activo', '2024-05-19 15:36:59', '2024-05-19 15:36:59'),
-(2, 'Profesor', 'Rol con acceso limitado', 'Activo', '2024-05-19 15:36:59', '2024-06-06 00:13:44');
+(2, 'Profesor(a)', 'Rol con acceso limitado', 'Activo', '2024-05-19 15:36:59', '2024-06-14 22:19:02'),
+(3, 'Jefe de almacen', 'test', 'Activo', NULL, '2024-06-13 19:03:16');
 
 -- --------------------------------------------------------
 
@@ -1349,7 +1658,8 @@ INSERT INTO `unidadmedida` (`Id`, `NombresUnd`, `AbreviaturaUnd`, `DescripcionUn
 (5, 'Caja', 'cj', 'Unidad de empaquetado', 'Activo', '2024-05-19 15:36:59', NULL),
 (6, 'Centímetro', 'cm', 'Unidad de medida de longitud', 'Activo', '2024-06-07 22:13:20', NULL),
 (7, 'Gramo', 'g', 'Unidad de medida de masa', 'Activo', '2024-06-07 22:13:38', NULL),
-(8, 'Mililitro', 'ml', 'Unidad de medida de volumen', 'Activo', '2024-06-07 22:14:05', NULL);
+(8, 'Mililitro', 'ml', 'Unidad de medida de volumen', 'Activo', '2024-06-07 22:14:05', NULL),
+(9, 'test1', 'test1', 'test1', 'Eliminado', '2024-06-13 19:18:50', '2024-06-13 19:18:58');
 
 -- --------------------------------------------------------
 
@@ -1397,10 +1707,43 @@ INSERT INTO `usuarios` (`Id`, `NombresUsuario`, `ApellidosUsuario`, `NumeroDocum
 --
 
 --
+-- Indices de la tabla `asignacion`
+--
+ALTER TABLE `asignacion`
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `FK_Asignacion_Taller` (`Taller_Id`),
+  ADD KEY `FK_Asignacion_Periodo` (`Periodo_id`),
+  ADD KEY `FK_Asignacion_Usuario` (`Usuario_Id`);
+
+--
 -- Indices de la tabla `categorias`
 --
 ALTER TABLE `categorias`
   ADD PRIMARY KEY (`Id`);
+
+--
+-- Indices de la tabla `detalle_asignacion_equipos`
+--
+ALTER TABLE `detalle_asignacion_equipos`
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `FK_Detalle_Equipo` (`Equipo_Id`),
+  ADD KEY `FK_Detalle_Asignacion` (`Asignacion_Id`);
+
+--
+-- Indices de la tabla `detalle_asignacion_herramientas`
+--
+ALTER TABLE `detalle_asignacion_herramientas`
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `FK_Detalle_Herramienta` (`Herramienta_Id`),
+  ADD KEY `FK_Detalle_AsignacionH` (`Asignacion_Id`);
+
+--
+-- Indices de la tabla `detalle_asignacion_insumos`
+--
+ALTER TABLE `detalle_asignacion_insumos`
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `FK_Detalle_Insumos` (`Insumos_Id`),
+  ADD KEY `FK_Detalle_AsignacionI` (`Asignacion_Id`);
 
 --
 -- Indices de la tabla `equipos`
@@ -1478,16 +1821,40 @@ ALTER TABLE `usuarios`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `asignacion`
+--
+ALTER TABLE `asignacion`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT de la tabla `categorias`
 --
 ALTER TABLE `categorias`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
+-- AUTO_INCREMENT de la tabla `detalle_asignacion_equipos`
+--
+ALTER TABLE `detalle_asignacion_equipos`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `detalle_asignacion_herramientas`
+--
+ALTER TABLE `detalle_asignacion_herramientas`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `detalle_asignacion_insumos`
+--
+ALTER TABLE `detalle_asignacion_insumos`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT de la tabla `equipos`
 --
 ALTER TABLE `equipos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT de la tabla `herramientas`
@@ -1511,13 +1878,13 @@ ALTER TABLE `periodos`
 -- AUTO_INCREMENT de la tabla `proveedores`
 --
 ALTER TABLE `proveedores`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `talleres`
@@ -1535,7 +1902,7 @@ ALTER TABLE `ubicaciones`
 -- AUTO_INCREMENT de la tabla `unidadmedida`
 --
 ALTER TABLE `unidadmedida`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -1546,6 +1913,35 @@ ALTER TABLE `usuarios`
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `asignacion`
+--
+ALTER TABLE `asignacion`
+  ADD CONSTRAINT `FK_Asignacion_Periodo` FOREIGN KEY (`Periodo_id`) REFERENCES `talleres` (`Id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_Asignacion_Taller` FOREIGN KEY (`Taller_Id`) REFERENCES `talleres` (`Id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_Asignacion_Usuario` FOREIGN KEY (`Usuario_Id`) REFERENCES `usuarios` (`Id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `detalle_asignacion_equipos`
+--
+ALTER TABLE `detalle_asignacion_equipos`
+  ADD CONSTRAINT `FK_Detalle_Asignacion` FOREIGN KEY (`Asignacion_Id`) REFERENCES `asignacion` (`Id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_Detalle_Equipo` FOREIGN KEY (`Equipo_Id`) REFERENCES `equipos` (`Id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `detalle_asignacion_herramientas`
+--
+ALTER TABLE `detalle_asignacion_herramientas`
+  ADD CONSTRAINT `FK_Detalle_AsignacionH` FOREIGN KEY (`Asignacion_Id`) REFERENCES `asignacion` (`Id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_Detalle_Herramienta` FOREIGN KEY (`Herramienta_Id`) REFERENCES `herramientas` (`Id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `detalle_asignacion_insumos`
+--
+ALTER TABLE `detalle_asignacion_insumos`
+  ADD CONSTRAINT `FK_Detalle_AsignacionI` FOREIGN KEY (`Asignacion_Id`) REFERENCES `asignacion` (`Id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_Detalle_Insumos` FOREIGN KEY (`Insumos_Id`) REFERENCES `insumos` (`Id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `equipos`

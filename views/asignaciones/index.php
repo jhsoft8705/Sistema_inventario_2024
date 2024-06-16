@@ -42,7 +42,7 @@ if(isset($_SESSION['usuario_id'])){
 
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Asignaciones</a></li>
+                                        <li class="breadcrumb-item"><a href="../home/">Home</a></li>
                                         <li class="breadcrumb-item active">Asignaciones</li>
                                     </ol>
                                 </div>
@@ -56,8 +56,8 @@ if(isset($_SESSION['usuario_id'])){
                             <div class="row g-2">
                                 <div class="col-xl-3">
                                     <div class="search-box">
-                                        <input type="text" class="form-control search"
-                                            placeholder="Search for sellers &amp; owner name or something..."> <i
+                                        <input   type="text" class="form-control search"
+                                            placeholder="Buscar.."> <i  
                                             class="ri-search-line search-icon"></i>
                                     </div>
                                 </div>
@@ -67,15 +67,16 @@ if(isset($_SESSION['usuario_id'])){
                                         <div class="choices" data-type="select-one" tabindex="0" role="listbox"
                                             aria-haspopup="true" aria-expanded="false">
                                             <div class="input-group has-validation">
-                                                            <select class="form-control" name="taller_id" id="taller_id"
-                                                                aria-describedby="taller_id">
-                                                                <option value="">Seleccionar</option>
-                                                                <option value="2">Otro</option>
-                                                            </select>
-                                                            <div id="taller_error" class="invalid-feedback">
-                                                                Por favor seleccionar taller
-                                                            </div>
-                                                        </div>
+                                                <select class="form-control" name="taller_id" id="taller_id"
+                                                    aria-describedby="taller_id">
+                                                    <option value="">Seleccionar periodo</option>
+                                                    <option value="2">Febrero 2024</option>
+                                                    <option value="2">Abril 2024</option> 
+                                                </select>
+                                                <div id="taller_error" class="invalid-feedback">
+                                                    Por favor seleccionar taller
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -84,7 +85,8 @@ if(isset($_SESSION['usuario_id'])){
                                     <div class="hstack gap-2">
                                         <button type="button" class="btn btn-danger"><i
                                                 class="ri-equalizer-fill me-1 align-bottom"></i> Filtrar</button>
-                                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target=""><i
+                                        <button class="btn btn-success"
+                                            onclick="window.location.href='../new-asignacion/'"><i
                                                 class="ri-add-fill me-1 align-bottom"></i>
                                             Nuevo registro</button>
                                     </div>
@@ -94,7 +96,13 @@ if(isset($_SESSION['usuario_id'])){
                             <!--end row-->
                         </div>
                     </div>
-                    <div class="row mt-2">
+                    <div class="row mt-2" id="contenido_asignados">
+                        <!--Contenido-->
+
+                        <!--Controller-->
+
+                        <!--End Contenido-->
+                        <!--backup
                         <div class="col-xl-3 col-lg-6">
                             <div class="card ribbon-box right overflow-hidden">
                                 <div class="card-body text-center p-4">
@@ -125,14 +133,13 @@ if(isset($_SESSION['usuario_id'])){
                                     </div>
                                     <div class="mt-4">
                                         <a href="apps-ecommerce-seller-details.html" class="btn btn-light w-100">Ver</a>
-                                    </div>
-                                    <!--
+                                    </div> 
                                     <div class="mt-1">
                                         <a href="apps-ecommerce-seller-details.html" class="btn btn-light w-100">Realizar inventaro</a>
-                                    </div>-->
+                                    </div> 
                                 </div>
                             </div>
-                        </div>
+                        </div>--> 
                     </div>
                     <div class="row g-0 text-center text-sm-start align-items-center mb-3">
                         <div class="col-sm-6">
@@ -192,7 +199,7 @@ if(isset($_SESSION['usuario_id'])){
     <?php require_once ("../components/js.php") ?>
 
     <!-- App js -->
-    <script src="Asignaciones.js"></script>
+    <script src="asignacions.js"></script>
 
 </body>
 

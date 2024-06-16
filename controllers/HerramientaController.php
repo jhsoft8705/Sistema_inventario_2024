@@ -80,11 +80,14 @@ switch($_GET['endpoint']) {
                 $output["medida"] = $row["Medida"];
                 $output["cantidad"] = $row["Cantidad"];
                 $output["precio_unitario"] = $row["Precio_Unitario"];
+                $output["total"] = $row["Total"]; 
                 $output["fecha_adquisicion"] = $row["Fecha_Adquision"];
                 $output["estado_herramienta"] = $row["Estado_Herramienta"];
                 $output["nota"] = $row["Nota"];
             }
             echo json_encode($output); 
+        }else{
+            echo json_encode([]); 
         }
     break;
 
@@ -139,13 +142,13 @@ switch($_GET['endpoint']) {
 
 
     // Obtener herramienta para combobox
-    case 'get_eherramienta_jcombox':
+    case 'get_herramienta_jcombox':
         $datos = $herramienta->list_herramientas();
         if (is_array($datos) && count($datos) > 0) {
             $html = "<option value=''>Seleccionar</option>";
             foreach ($datos as $row) {
                 if($row["Estado"]=='Activo'){
-                    $html .= "<option value='" . $row['Id'] . "'>" . $row['Nombre'] . "</option>";
+                    $html .= "<option value='" . $row['Id'] . "'>" . $row['Codigo'] .' - ' . $row['Nombre'] .' - ' . $row['Descripcion'] .' - '. $row['Marca'] .' - '. $row['Color'] ."</option>";
                 }
             }
             echo $html;
