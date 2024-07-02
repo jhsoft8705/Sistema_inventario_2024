@@ -194,8 +194,10 @@ DELIMITER ;
 
 
  /*TODO:==============LISTA SIGNACIONES=====================*/  
-DELIMITER // 
-CREATE PROCEDURE listar_asignaciones (IN input_search VARCHAR(250))
+  
+DELIMITER //
+
+CREATE PROCEDURE listar_asignaciones (IN input_search VARCHAR(250), IN periodo_name VARCHAR(250))
 BEGIN
     -- Tabla temporal para almacenar resultados intermedios
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_results (
@@ -221,8 +223,8 @@ BEGIN
         CantidadI INT,
         TotalI DECIMAL(10, 2),
         TotalGeneral DECIMAL(10, 2)
+    );
 
-    ); 
     -- Insertar datos en la tabla temporal
     INSERT INTO temp_results
     SELECT
@@ -255,9 +257,10 @@ BEGIN
     INNER JOIN Usuarios AS u ON u.Id = a.Usuario_Id
     INNER JOIN Periodos AS p ON p.Id = a.Periodo_id
     LEFT JOIN roles AS r ON r.Id = u.Id_rol
-    WHERE a.Estado = 'Activo' AND a.EstadoAsigacion = 'Asignado' 
-    AND (input_search IS NULL OR t.T_Nombre LIKE CONCAT('%', input_search, '%'));
-
+    WHERE a.Estado = 'Activo' 
+        AND a.EstadoAsigacion = 'Asignado' 
+        AND (input_search IS NULL OR t.T_Nombre LIKE CONCAT('%', input_search, '%'))
+		AND (periodo_name IS NULL OR p.Nombre LIKE CONCAT('%', periodo_name, '%')); 
     -- Seleccionar resultados de la tabla temporal
     SELECT * FROM temp_results;
 
@@ -267,3 +270,38 @@ END //
 
 DELIMITER ;
 
+
+ /*TODO:==============ASIGNACION X ID=====================*/  
+DELIMITER // 
+CREATE PROCEDURE listar_asignaciones_id(IN p_asignacion_id INT)
+BEGIN
+    SELECT 
+        a.Id,
+        a.Codigo,
+        a.Taller_Id,
+        a.Periodo_id,
+        a.Usuario_Id,
+        a.EstadoAsigacion,
+        a.Descripcion,
+        a.Estado,
+        a.FechaRegistro,    
+        a.FechaActualizacion,
+        t.T_Nombre AS Taller_Nombre, 
+        p.Nombre AS Periodo_Nombre,
+        p.Fecha_Inicio,
+        p.Fecha_Fin,
+        u.NombresUsuario ,
+        u.ApellidosUsuario
+    FROM 
+        Asignacion a
+    INNER JOIN 
+        Talleres AS t ON t.Id=a.Taller_Id 
+    INNER JOIN 
+        Periodos AS  p ON p.Id=a.Periodo_id
+    INNER JOIN 
+        Usuarios  AS u ON u.Id=a.Usuario_Id 
+    WHERE 
+        a.Id = p_asignacion_id;
+END // 
+DELIMITER ;
+  

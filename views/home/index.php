@@ -1,5 +1,25 @@
 <?php  
 require_once("../../config/conexion.php"); 
+
+require_once("../../models/Equipo.php");
+$equipo=new Equipo();
+$list_equipos=$equipo->list_equipos();
+ 
+require_once("../../models/Herramienta.php");
+$herramienta=new Herramienta();
+$list_herramientas=$herramienta->list_herramientas();
+ 
+
+require_once("../../models/Insumo.php");
+$insumo=new Insumo();
+$list_insumos=$insumo->list_insumos();
+
+require_once("../../models/Usuario.php");
+$user=new Usuario();
+$list_users=$user->List_User();
+
+
+
 /*TODO:Validar si la sesión exite , si no location al Login*/
 if(isset($_SESSION['usuario_id'])){ 
         
@@ -56,7 +76,7 @@ if(isset($_SESSION['usuario_id'])){
                         <div class="col-xl-12">
                             <div class="card crm-widget">
                                 <div class="card-body p-0">
-                                    <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1 g-0">
+                                    <div class="row row-cols-xxl-5 row-cols-md-4 row-cols-1 g-0">
                                         <div class="col">
                                             <div class="py-4 px-3">
                                                 <h5 class="text-muted text-uppercase fs-13">Cant. Equipos<i
@@ -68,7 +88,8 @@ if(isset($_SESSION['usuario_id'])){
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
                                                         <h2 class="mb-0"><span class="counter-value"
-                                                                data-target="100">100</span></h2>
+                                                                data-target="<?php echo count($list_equipos)?>"><?php echo count($list_equipos)?></span>
+                                                        </h2>
                                                     </div>
                                                 </div>
                                             </div>
@@ -84,7 +105,8 @@ if(isset($_SESSION['usuario_id'])){
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
                                                         <h2 class="mb-0"><span class="counter-value"
-                                                                data-target="30">30</span></h2>
+                                                                data-target="<?php echo count($list_herramientas)?>"><?php echo count($list_herramientas)?></span>
+                                                        </h2>
                                                     </div>
                                                 </div>
                                             </div>
@@ -100,7 +122,26 @@ if(isset($_SESSION['usuario_id'])){
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
                                                         <h2 class="mb-0"><span class="counter-value"
-                                                                data-target="10">10</span></h2>
+                                                                data-target="<?php echo count($list_insumos)?>"><?php echo count($list_insumos)?></span>
+                                                        </h2>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col">
+                                            <div class="py-4 px-3">
+                                                <h5 class="text-muted text-uppercase fs-13">Usuarios del sistema<i
+                                                        class="ri-arrow-up-circle-line text-success fs-18 float-end align-middle"></i>
+                                                </h5>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0">
+                                                        <i class=" ri-user-line display-6 text-muted"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h2 class="mb-0"><span class="counter-value"
+                                                                data-target="<?php echo count($list_users)?>"><?php echo count($list_users)?></span>
+                                                        </h2>
                                                     </div>
                                                 </div>
                                             </div>
@@ -110,7 +151,41 @@ if(isset($_SESSION['usuario_id'])){
                             </div><!-- end card -->
                         </div><!-- end col -->
                     </div>
+
+
+                    <!--Charts-->
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Cant Asignaciones X Taller</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chart-pie2"
+                                        data-colors='["--vz-primary", "--vz-success", "--vz-warning", "--vz-danger", "--vz-info"]'
+                                        class="e-charts"></div>
+                                </div>
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                        <div class="col-xl-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Cant de Talleres Asignados X Usuario</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chart-doughnut1"
+                                        data-colors='["--vz-warning", "--vz-success", "--vz-primary", "--vz-danger", "--vz-info"]'
+                                        class="e-charts"></div>
+                                </div>
+                            </div>
+                            <!-- end card -->
+                        </div>
+                        <!-- end col -->
+                    </div>
                     <!-- end page title -->
+
 
                 </div>
                 <!-- container-fluid -->
@@ -153,6 +228,12 @@ if(isset($_SESSION['usuario_id'])){
     <?php require_once ("../components/js.php") ?>
 
     <!-- App js -->
+
+    <!-- echarts js -->
+    <script src="../../assets/libs/echarts/echarts.min.js"></script>
+
+    <!-- echarts init -->
+ 
     <script src="home.js"></script>
 
 </body>

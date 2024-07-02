@@ -34,12 +34,28 @@ class Asignacion extends Conectar
         }
     } 
 
-    public function listar_asignacion($input_research) {
+    public function listar_asignacion($input_research,$periodo) {
         try {
             $conectar = parent::Conexion();
-            $sql = "CALL listar_asignaciones(?)";  
+            $sql = "CALL listar_asignaciones(?,?)";  
             $query = $conectar->prepare($sql);
             $query->bindValue(1, $input_research);  
+            $query->bindValue(2, $periodo);  
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Error en la consulta: " . $e->getMessage();
+            return ["error" => "Ocurrió un error al ejecutar consulta"]; 
+        }
+    }
+    
+    //Listar asignacion x id
+    public function listar_asignacion_x_id($asignacion_id) {
+        try {
+            $conectar = parent::Conexion();
+            $sql = "CALL listar_asignaciones_id(?)";   
+            $query = $conectar->prepare($sql);
+            $query->bindValue(1, $asignacion_id);  
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

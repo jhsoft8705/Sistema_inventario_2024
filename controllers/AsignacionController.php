@@ -148,7 +148,7 @@ switch($_GET['endpoint']){
  
    /*TODO:Listar asignaciones */
     case 'listar_asignacion':
-    $datos=$asignacion->listar_asignacion(null); 
+    $datos=$asignacion->listar_asignacion($_POST["research"],$_POST["periodo"]); 
     foreach($datos as $filas){ 
     ?>
         <div class="col-xl-3 col-lg-6">
@@ -158,7 +158,7 @@ switch($_GET['endpoint']){
                             class="ri-flashlight-fill text-white align-bottom"></i> <span
                             class="trending-ribbon-text"><?php echo $filas["Periodo_Nombre"]?></span></div>
                     <img src="../../assets/images/companies/img-8.png" alt="" height="45">
-                    <h5 class="mb-1 mt-4"><a href="../AsigDetalle/"
+                    <h5 class="mb-1 mt-4"><a  href="../view-asignacion/?id_asignacion=<?php echo $filas["asignacion_id"]; ?>" 
                             class="link-primary"><?php echo $filas["T_Nombre"]?></a></h5>
                     <p class="text-muted mb-4"><?php echo $filas["NombreRol"].' - '.$filas["NombresUsuario"].'  '.$filas["ApellidosUsuario"]?></p>
                     <div class="row mt-4">
@@ -180,7 +180,7 @@ switch($_GET['endpoint']){
                         </div>
                     </div>
                     <div class="mt-4">
-                        <a href="../AsigDetalle/" class="btn btn-light w-100">Ver</a>
+                    <a href="../view-asignacion/?id_asignacion=<?php echo $filas["asignacion_id"]; ?>" class="btn btn-light w-100">Ver</a>
                     </div> 
                     <!---<div class="mt-1">
                         <a href="apps-ecommerce-seller-details.html" class="btn btn-light w-100">Realizar inventaro</a>
@@ -189,8 +189,8 @@ switch($_GET['endpoint']){
             </div>
         </div> 
     <?php }
-    break; 
-
+    break;  
+    
     case 'get_asignacione_jcombox':
     $datos=$asignacion->list_asignacion();
     if (is_array($datos) == true and count($datos) > 0) {
@@ -202,13 +202,23 @@ switch($_GET['endpoint']){
     }
     break; 
     /*TODO:Listar asignacion x Id*/ 
-    case 'list_asignacion_id':
-    $datos=$asignacion->list_asignacion_id($_POST["asignacion_id"]);
+    case 'listar_asignacion_x_id':
+    $datos=$asignacion->listar_asignacion_x_id($_POST["asignacion_id"]);
          if(is_array($datos)==true and count($datos)>0){  
             foreach($datos as $row){
               $output["id"]=$row["Id"]; 
-                $output["nombre"]=$row["Nombreasignacion"];  
-                $output["descripcion"]=$row["Descripcion"]; 
+              $output["id"] = $row["Id"];
+              $output["codigo"] = $row["Codigo"];
+              $output["descripcion"] = $row["Descripcion"];
+              $output["taller_id"] = $row["Taller_Id"];
+              $output["taller_nombre"] = $row["Taller_Nombre"];
+              $output["periodo_id"] = $row["Periodo_id"];
+              $output["periodo_nombre"] = $row["Periodo_Nombre"];
+              $output["fecha_inicio_periodo"] = $row["Fecha_Inicio"];
+              $output["fecha_fin_periodo"] = $row["Fecha_Fin"];
+              $output["usuario_id"] = $row["Usuario_Id"];
+              $output["nombres_usuario"] = $row["NombresUsuario"].' '.$row["ApellidosUsuario"];
+     
             }
             echo json_encode($output); 
         }

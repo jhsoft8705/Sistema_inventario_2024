@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 16-06-2024 a las 19:38:55
+-- Tiempo de generación: 02-07-2024 a las 18:47:24
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -265,6 +265,49 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `eliminar_user` (IN `user_id` INT)  
 	UPDATE Usuarios SET Estado='Eliminado' WHERE Id=user_id ;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `grafico_echart_dona` ()   BEGIN
+    -- Consulta principal para obtener datos reales
+    SELECT
+        COALESCE(COUNT(a.Taller_Id), 0) AS TotalAsignaciones,
+        COALESCE(a.Codigo, 'N/A') AS Codigo, -- Asegúrate de que esta columna tenga un valor por defecto
+        COALESCE(t.T_Nombre, 'No Hay Talleres') AS T_Nombre
+    FROM
+        asignacion AS a
+    INNER JOIN
+        talleres AS t ON t.Id = a.Taller_Id
+    WHERE
+        a.Estado = 'Activo'
+    GROUP BY
+        t.T_Nombre
+    
+    UNION ALL
+
+    -- Consulta para devolver un registro con 0 si no hay datos
+    SELECT
+        0 AS TotalAsignaciones,
+        'N/A' AS Codigo,
+        'No Hay Talleres' AS T_Nombre
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM asignacion AS a
+        WHERE a.Estado = 'Activo'
+    );
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `grafico_usuario_taller_dona` ()   BEGIN
+    SELECT
+        COUNT(a.Taller_Id) AS Total,
+        a.Codigo,
+        CONCAT(u.NombresUsuario, ' ', u.ApellidosUsuario) AS Nombres
+    FROM
+        asignacion AS a
+    INNER JOIN talleres AS t ON t.Id = a.Taller_Id
+    INNER JOIN usuarios AS u ON u.Id = a.Usuario_Id
+    WHERE  a.Estado = 'Activo'
+    GROUP BY a.Codigo, Nombres;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_almacen` ()   BEGIN
     SELECT 
         e.Id,
@@ -351,7 +394,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_almacen_id` (IN `almacen_id`
         e.Id = almacen_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_asignaciones` (IN `input_search` VARCHAR(250))   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_asignaciones` (IN `input_search` VARCHAR(250), IN `periodo_name` VARCHAR(250))   BEGIN
     -- Tabla temporal para almacenar resultados intermedios
     CREATE TEMPORARY TABLE IF NOT EXISTS temp_results (
         asignacion_id INT,
@@ -376,8 +419,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_asignaciones` (IN `input_sea
         CantidadI INT,
         TotalI DECIMAL(10, 2),
         TotalGeneral DECIMAL(10, 2)
+    );
 
-    ); 
     -- Insertar datos en la tabla temporal
     INSERT INTO temp_results
     SELECT
@@ -410,14 +453,48 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_asignaciones` (IN `input_sea
     INNER JOIN Usuarios AS u ON u.Id = a.Usuario_Id
     INNER JOIN Periodos AS p ON p.Id = a.Periodo_id
     LEFT JOIN roles AS r ON r.Id = u.Id_rol
-    WHERE a.Estado = 'Activo' AND a.EstadoAsigacion = 'Asignado' 
-    AND (input_search IS NULL OR t.T_Nombre LIKE CONCAT('%', input_search, '%'));
-
+    WHERE a.Estado = 'Activo' 
+        AND a.EstadoAsigacion = 'Asignado' 
+        AND (input_search IS NULL OR t.T_Nombre LIKE CONCAT('%', input_search, '%'))
+		AND (periodo_name IS NULL OR p.Nombre LIKE CONCAT('%', periodo_name, '%')); 
     -- Seleccionar resultados de la tabla temporal
     SELECT * FROM temp_results;
 
     -- Limpiar tabla temporal
     DROP TEMPORARY TABLE IF EXISTS temp_results;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_asignaciones_id` (IN `p_asignacion_id` INT)   BEGIN
+    SELECT
+        a.Id,
+        a.Codigo,
+        a.Taller_Id,
+        a.Periodo_id,
+        a.Usuario_Id,
+        a.EstadoAsigacion,
+        a.Descripcion,
+        a.Estado,
+        a.FechaRegistro,
+        a.FechaActualizacion,
+        t.T_Nombre AS Taller_Nombre,
+        p.Nombre AS Periodo_Nombre,
+        p.Fecha_Inicio,
+        p.Fecha_Fin,
+        u.NombresUsuario,
+        u.ApellidosUsuario
+    FROM
+        Asignacion a
+    INNER JOIN Talleres AS t
+    ON
+        t.Id = a.Taller_Id
+    INNER JOIN Periodos AS p
+    ON
+        p.Id = a.Periodo_id
+    INNER JOIN Usuarios AS u
+    ON
+        u.Id = a.Usuario_Id
+    WHERE
+        a.Id = p_asignacion_id ;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `listar_categorias` ()   BEGIN
@@ -1140,9 +1217,9 @@ CREATE TABLE `asignacion` (
 --
 
 INSERT INTO `asignacion` (`Id`, `Codigo`, `Taller_Id`, `Periodo_id`, `Usuario_Id`, `EstadoAsigacion`, `Descripcion`, `Estado`, `FechaRegistro`, `FechaActualizacion`) VALUES
-(1, 'AS-0001', 2, 2, 4, 'Asignado', 'wewe', 'Activo', '2024-06-14 22:14:15', NULL),
-(2, 'AS-0002', 16, 16, 8, 'Asignado', 'test', 'Activo', '2024-06-14 22:28:45', NULL),
-(3, 'AS-0003', NULL, NULL, 11, NULL, NULL, 'PreActivo', '2024-06-14 23:17:56', NULL);
+(1, 'AS-0001', 2, 1, 3, 'Asignado', 'Equipos asignados en perfeto estado al usuario', 'Activo', '2024-07-01 21:44:20', NULL),
+(2, 'AS-0002', 4, 2, 4, 'Asignado', 'Asignado', 'Activo', '2024-07-01 21:45:42', NULL),
+(3, 'AS-0003', 3, 1, 10, 'Asignado', 'Nueva asiganción', 'Activo', '2024-07-01 22:12:31', NULL);
 
 --
 -- Disparadores `asignacion`
@@ -1216,11 +1293,10 @@ CREATE TABLE `detalle_asignacion_equipos` (
 --
 
 INSERT INTO `detalle_asignacion_equipos` (`Id`, `Equipo_Id`, `Asignacion_Id`, `Cantidad`, `Precio_Unitario`, `Total`, `EstadoDetalle`, `Estado`) VALUES
-(1, 2, 1, 1, 120.00, 120.00, 'Asignado', 'Activo'),
+(1, 1, 1, 1, 144.00, 144.00, 'Asignado', 'Activo'),
 (2, 3, 1, 1, 144.00, 144.00, 'Asignado', 'Activo'),
-(3, 1, 2, 1, 144.00, 144.00, 'Asignado', 'Activo'),
-(4, 3, 2, 1, 144.00, 144.00, 'Asignado', 'Activo'),
-(5, 10, 2, 1, 144.00, 144.00, 'Asignado', 'Activo');
+(6, 29, 2, 2, 750.00, 1500.00, 'Asignado', 'Activo'),
+(7, 3, 3, 1, 144.00, 144.00, 'Asignado', 'Activo');
 
 -- --------------------------------------------------------
 
@@ -1244,10 +1320,10 @@ CREATE TABLE `detalle_asignacion_herramientas` (
 --
 
 INSERT INTO `detalle_asignacion_herramientas` (`Id`, `Herramienta_Id`, `Asignacion_Id`, `Cantidad`, `Precio_Unitario`, `Total`, `EstadoDetalle`, `Estado`) VALUES
-(1, 1, 1, 1, 15.00, 15.00, 'Asignado', 'Activo'),
-(2, 4, 1, 1, 25.00, 25.00, 'Asignado', 'Activo'),
-(3, 1, 2, 1, 15.00, 15.00, 'Asignado', 'Activo'),
-(4, 3, 2, 1, 10.00, 10.00, 'Asignado', 'Activo');
+(1, 2, 1, 1, 500.00, 500.00, 'Asignado', 'Activo'),
+(2, 4, 2, 1, 25.00, 25.00, 'Asignado', 'Activo'),
+(3, 4, 2, 2, 25.00, 50.00, 'Asignado', 'Activo'),
+(4, 2, 3, 1, 500.00, 500.00, 'Asignado', 'Activo');
 
 -- --------------------------------------------------------
 
@@ -1271,8 +1347,9 @@ CREATE TABLE `detalle_asignacion_insumos` (
 --
 
 INSERT INTO `detalle_asignacion_insumos` (`Id`, `Insumos_Id`, `Asignacion_Id`, `Cantidad`, `Precio_Unitario`, `Total`, `EstadoDetalle`, `Estado`) VALUES
-(1, 1, 1, 1, 2.50, 2.50, 'Asignado', 'Activo'),
-(2, 1, 2, 1, 2.50, 2.50, 'Asignado', 'Activo');
+(1, 2, 1, 1, 0.10, 0.10, 'Asignado', 'Activo'),
+(2, 1, 2, 1, 2.50, 2.50, 'Asignado', 'Activo'),
+(3, 2, 3, 1, 0.10, 0.10, 'Asignado', 'Activo');
 
 -- --------------------------------------------------------
 
@@ -1628,7 +1705,7 @@ INSERT INTO `ubicaciones` (`Id`, `U_Nombre`, `U_Descripcion`, `Estado`, `FechaRe
 (4, 'Laboratorio de Manualidades', 'Ubicación para equipos de laboratorio y materiales científicos', 'Activo', '2024-06-06 00:21:48', NULL),
 (5, 'Taller de Carpintería', 'Ubicación para herramientas y maquinaria de carpintería', 'Activo', '2024-06-06 00:21:48', NULL),
 (6, 'Almacen del aula 05', 'Ubicación para equipos de ejercicio y entrenamiento físico', 'Activo', '2024-06-06 00:21:48', NULL),
-(7, 'test1', 'test1', 'Activo', '2024-06-06 00:25:40', '2024-06-06 00:25:45');
+(7, 'test1', 'test1', 'Eliminado', '2024-06-06 00:25:40', '2024-06-06 00:25:45');
 
 -- --------------------------------------------------------
 
@@ -1700,7 +1777,7 @@ INSERT INTO `usuarios` (`Id`, `NombresUsuario`, `ApellidosUsuario`, `NumeroDocum
 (8, 'Isabel', 'Torres', '357159486', '555-6789', 'isabel.torres@example.com', '12345', 2, 'NO', 'Calle Estrecha 357', 'url_foto8.jpg', 'Femenino', 'Activo', '2024-05-19 15:36:59', '2024-05-19 15:36:59'),
 (9, 'Jorge', 'Ramírez', '753951486', '555-2345', 'jorge.ramirez@example.com', '12345', 1, 'SI', 'Avenida Ancha 753', 'url_foto9.jpg', 'Masculino', 'Activo', '2024-05-19 15:36:59', '2024-05-19 15:36:59'),
 (10, 'Laura', 'Mendoza', '951753486', '555-7654', 'laura.mendoza@example.com', '12345', 2, 'NO', 'Callejón del Sol 951', 'url_foto10.jpg', 'Femenino', 'Activo', '2024-05-19 15:36:59', '2024-05-19 15:36:59'),
-(11, 'Admin', 'Administrador ', '123789456', '555-3457', 'admin@gmail.com', '12345', 1, 'NO', 'Calle del Río 123', 'url_foto11.jpg', 'Masculino', 'Activo', '2024-05-19 15:36:59', '2024-05-19 15:36:59');
+(11, 'Usuario del Sistema', 'General', '123789456', '555-3457', 'admin@gmail.com', '12345', 1, 'NO', 'Calle del Río 123', 'url_foto11.jpg', 'Masculino', 'Activo', '2024-05-19 15:36:59', '2024-05-19 15:36:59');
 
 --
 -- Índices para tablas volcadas
@@ -1836,7 +1913,7 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de la tabla `detalle_asignacion_equipos`
 --
 ALTER TABLE `detalle_asignacion_equipos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_asignacion_herramientas`
@@ -1848,7 +1925,7 @@ ALTER TABLE `detalle_asignacion_herramientas`
 -- AUTO_INCREMENT de la tabla `detalle_asignacion_insumos`
 --
 ALTER TABLE `detalle_asignacion_insumos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `equipos`

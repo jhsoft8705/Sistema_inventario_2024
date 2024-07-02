@@ -91,7 +91,7 @@ switch($_GET['endpoint']) {
     case 'get_periodo_combobox':
         $datos = $periodo->list_periodos();
         if (is_array($datos) && count($datos) > 0) {
-            $html = "<option value=''>Seleccionar</option>";
+            $html = "<option value='' id='periodo_id'>Seleccionar</option>";
             foreach ($datos as $row) {
                 if($row["Estado"] == 'Activo') {
                     $html .= "<option value='" . $row['Id'] . "'>" . $row['Nombre'] . "</option>";

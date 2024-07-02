@@ -56,22 +56,20 @@ if(isset($_SESSION['usuario_id'])){
                             <div class="row g-2">
                                 <div class="col-xl-3">
                                     <div class="search-box">
-                                        <input   type="text" class="form-control search"
-                                            placeholder="Buscar.."> <i  
-                                            class="ri-search-line search-icon"></i>
+                                        <input type="text" id="buscador" class="form-control search"
+                                            placeholder="Buscar.."> <i class="ri-search-line search-icon"></i>
                                     </div>
                                 </div>
                                 <!--end col-->
                                 <div class="col-xl-2 ms-auto">
                                     <div>
-                                        <div class="choices" data-type="select-one" tabindex="0" role="listbox"
-                                            aria-haspopup="true" aria-expanded="false">
+                                        <div data-type="select-one" tabindex="0" role="listbox" aria-haspopup="true"
+                                            aria-expanded="false">
                                             <div class="input-group has-validation">
-                                                <select class="form-control" name="taller_id" id="taller_id"
-                                                    aria-describedby="taller_id">
+                                                <select class="form-control" name="periodo_id" id="periodo_id"
+                                                    aria-describedby="periodo_id">
                                                     <option value="">Seleccionar periodo</option>
-                                                    <option value="2">Febrero 2024</option>
-                                                    <option value="2">Abril 2024</option> 
+
                                                 </select>
                                                 <div id="taller_error" class="invalid-feedback">
                                                     Por favor seleccionar taller
@@ -83,9 +81,13 @@ if(isset($_SESSION['usuario_id'])){
                                 <!--end col-->
                                 <div class="col-lg-auto">
                                     <div class="hstack gap-2">
-                                        <button type="button" class="btn btn-danger"><i
+                                        <button type="button" id="btn_filtrarr" class="btn btn-danger"><i
                                                 class="ri-equalizer-fill me-1 align-bottom"></i> Filtrar</button>
-                                        <button class="btn btn-success"
+                                        <button type="button" class="btn btn-success" onclick="location.reload();">
+                                            <i class="ri-loader-3-line me-1 align-bottom"></i> Cargar todo
+                                        </button>
+
+                                        <button class="btn btn-primary"
                                             onclick="window.location.href='../new-asignacion/'"><i
                                                 class="ri-add-fill me-1 align-bottom"></i>
                                             Nuevo registro</button>
@@ -139,7 +141,7 @@ if(isset($_SESSION['usuario_id'])){
                                     </div> 
                                 </div>
                             </div>
-                        </div>--> 
+                        </div>-->
                     </div>
                     <div class="row g-0 text-center text-sm-start align-items-center mb-3">
                         <div class="col-sm-6">
@@ -153,8 +155,6 @@ if(isset($_SESSION['usuario_id'])){
                                 <li class="page-item disabled"> <a href="#" class="page-link"><i
                                             class="mdi mdi-chevron-left"></i></a> </li>
                                 <li class="page-item active"> <a href="#" class="page-link">1</a> </li>
-                                <li class="page-item "> <a href="#" class="page-link">2</a> </li>
-                                <li class="page-item"> <a href="#" class="page-link">3</a> </li>
                                 <li class="page-item"> <a href="#" class="page-link"><i
                                             class="mdi mdi-chevron-right"></i></a> </li>
                             </ul>

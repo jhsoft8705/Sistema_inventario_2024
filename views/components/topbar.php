@@ -338,7 +338,7 @@
                     <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
-                            <img class="rounded-circle header-profile-user" src="../../assets/images/users/avatar-1.jpg"
+                            <img class="rounded-circle header-profile-user" src="../../assets/images/users/avatar-1.png"
                                 alt="Header Avatar">
                             <span class="text-start ms-xl-2">
                                 <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text"><?php echo $_SESSION["nombre_user"]?></span>
@@ -349,20 +349,20 @@
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
                         <h6 class="dropdown-header">Welcome <?php echo $_SESSION["nombre_user"]?>!</h6>
-                        <a class="dropdown-item" href="pages-profile.html"><i
+                        <a class="dropdown-item" href="../perfil/"><i
                                 class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span
                                 class="align-middle">Perfil</span></a> 
-                        <a class="dropdown-item" href="pages-faqs.html"><i
+                        <a class="dropdown-item" href="../ayuda/"><i
                                 class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i> <span
                                 class="align-middle">Ayuda</span></a>
                         <div class="dropdown-divider"></div> 
-                        <a class="dropdown-item" href="pages-profile-settings.html"><span
+                        <!--<a class="dropdown-item" href="pages-profile-settings.html"><span
                                 class="badge bg-soft-success text-success mt-1 float-end">New</span><i
                                 class="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i> <span
                                 class="align-middle">Editar perfil</span></a>
                         <a class="dropdown-item" href="auth-lockscreen-basic.html"><i
                                 class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> <span
-                                class="align-middle">Cambiar contraseña</span></a>
+                                class="align-middle">Cambiar contraseña</span></a>--->
                         <a class="dropdown-item" href="../components/logout.php"><i
                                 class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span
                                 class="align-middle" data-key="t-logout">Salir</span></a>
