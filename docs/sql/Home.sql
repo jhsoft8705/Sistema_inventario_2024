@@ -1,4 +1,4 @@
--------VERSION 2------------------
+------- VERSION 2------------------
 DELIMITER  //
 CREATE PROCEDURE grafico_echart_dona()  
 BEGIN
@@ -7,19 +7,18 @@ BEGIN
         a.Codigo,
         t.T_Nombre
     FROM
-        asignacion AS a
-    INNER JOIN talleres AS t ON t.Id = A.Taller_Id
+        Asignacion AS a
+    INNER JOIN Talleres AS t ON t.Id = a.Taller_Id
     WHERE  a.Estado='Activo'
     GROUP BY
     t.T_Nombre ;
 END //
 DELIMITER ;
 
-
 -------VERSION 2
 DELIMITER //
 
-CREATE PROCEDURE grafico_echart_dona()
+CREATE PROCEDURE grafico_echart_dona001()
 BEGIN
     -- Consulta principal para obtener datos reales
     SELECT
@@ -54,7 +53,7 @@ DELIMITER ;
 
 
 
-----------------------USUARIO X TALLERS
+---------------------- USUARIO X TALLERS
 DELIMITER  //
 CREATE PROCEDURE grafico_usuario_taller_dona()  
 BEGIN
@@ -63,9 +62,9 @@ BEGIN
         a.Codigo,
         CONCAT(u.NombresUsuario, ' ', u.ApellidosUsuario) AS Nombres
     FROM
-        asignacion AS a
-    INNER JOIN talleres AS t ON t.Id = a.Taller_Id
-    INNER JOIN usuarios AS u ON u.Id = a.Usuario_Id
+        Asignacion AS a
+    INNER JOIN Talleres AS t ON t.Id = a.Taller_Id
+    INNER JOIN Usuarios AS u ON u.Id = a.Usuario_Id
     WHERE  a.Estado = 'Activo'
     GROUP BY a.Codigo, Nombres;
 END //

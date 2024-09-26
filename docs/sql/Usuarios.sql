@@ -1,4 +1,3 @@
-SELECT*FROM Usuarios
  
 
  /*TODO:SP Listar usuarios*/
@@ -168,67 +167,5 @@ BEGIN
     END IF;
 END //
 DELIMITER ;  
- 
- 
-CREATE PROCEDURE SP_UPDATE_PERFIL
-@id_user INT,
-@nombres VARCHAR(80),
-@doc VARCHAR (15),
-@tel VARCHAR(15),
-@dir VARCHAR(50)
-AS
-BEGIN
-	UPDATE Usuarios
-	SET
-    NombresUsuario = @nombres,
-    NumeroDocumento = @doc,
-    Telefono = @tel,
-    Direccion = @dir
- 	WHERE Id = @id_user
-END 
-
-
-CREATE PROCEDURE SP_CHANGE_PASSWORD
-@id_user INT,
-@current_pass VARCHAR(255),
-@new_pass VARCHAR(255)
-AS
-BEGIN
- SET NOCOUNT ON 
-    DECLARE @Mensaje NVARCHAR(255) 
-    SET @Mensaje = '' 
-    DECLARE @current_pass_db VARCHAR(255);
-	
-    SELECT @current_pass_db = Contrasena
-    FROM Usuarios
-    WHERE Id = @id_user;
-
-    IF @current_pass_db IS NOT NULL AND @current_pass_db = @current_pass
-    BEGIN
-        UPDATE Usuarios
-        SET Contrasena = @new_pass
-        WHERE Id = @id_user; 
-
-		 SET @Mensaje = 'Password actualizada correctamente.' 
-    END
-    ELSE
-    BEGIN
-	     SET @Mensaje = 'La contrase�a actual no es correcta' 
-    END
-   SELECT @Mensaje AS Mensaje 
-    SET NOCOUNT ON 
-END;
- 
- 
-  
-
-CREATE PROCEDURE SP_CHANGE_PHOTO
-@Id_usuario INT,
-@Foto_url VARCHAR(200)
-AS
-BEGIN
-	UPDATE  Usuarios SET Url_foto=@Foto_url WHERE Id=@Id_usuario
-END
-
-
+   
  

@@ -1,10 +1,9 @@
-SELECT*FROM Roles
-
+ 
 DELIMITER //
 
 CREATE PROCEDURE listar_roles ()
 BEGIN
-     SELECT * FROM roles WHERE Estado = 'Activo';
+     SELECT * FROM Roles WHERE Estado = 'Activo';
 END //
 
 DELIMITER ;

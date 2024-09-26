@@ -7,7 +7,7 @@
         protected function Conexion(){
             try{
                 /* TODO: Cadena de Conexion */
-                $conectar = $this->dbh=new PDO("mysql:host=localhost;dbname=db_inventory","root","");
+                $conectar = $this->dbh=new PDO("mysql:host=localhost;dbname=u270537271_db_inventory","u270537271_inventoryuser","4b@Oj[G=QUc");
                 return $conectar;
             }catch (Exception $e){
                 /* TODO: En caso de error mostrar mensaje */
@@ -18,7 +18,7 @@
         } 
         public static function ruta(){
 
-            return "http://localhost/Sistema_inventario_2024/"; 
+            return "http://jhonalexvillaflores.website/"; 
         }
     }
 ?>

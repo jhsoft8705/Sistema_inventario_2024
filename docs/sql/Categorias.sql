@@ -3,8 +3,8 @@
 DELIMITER //
 CREATE PROCEDURE listar_categorias()
 BEGIN
-    SELECT *FROM Categorias 
-    WHERE U.Estado IN ('Activo','Inactivo') ;
+    SELECT *FROM Categorias as c
+    WHERE c.Estado IN ('Activo','Inactivo') ;
 END //
 DELIMITER ;
 
@@ -66,7 +66,7 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE eliminar_categoria(IN cate_id INT)
  BEGIN
-	UPDATE categorias SET Estado='Eliminado' WHERE Id=cate_id ;
+	UPDATE Categorias SET Estado='Eliminado' WHERE Id=cate_id ;
 END // 
 DELIMITER ; 
 
